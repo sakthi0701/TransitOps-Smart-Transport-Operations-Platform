@@ -11,8 +11,7 @@ Smart Fleet Operations Platform: vehicles, drivers, trips, maintenance, fuel, an
 ## Running Servers
 | Service  | URL                         | Command |
 |----------|-----------------------------|---------|
-| Backend  | http://localhost:8000       | `.\venv\Scripts\Activate.ps1
- & python -m uvicorn backend.main:app --reload --port 8000` |
+| Backend  | http://localhost:8000       | `.\venv\Scripts\Activate.ps1 & python -m uvicorn backend.main:app --reload --port 8000` |
 | Frontend | http://localhost:5173       | `cd frontend && npm run dev` |
 | API Docs | http://localhost:8000/docs  | (auto, Swagger UI) |
 
