@@ -8,15 +8,17 @@ import useAuthStore from '../store/authStore'
 import toast from 'react-hot-toast'
 
 const NAV_ITEMS = [
-  { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard'   },
-  { to: '/dispatch',    icon: Navigation,      label: 'Dispatch'    },
-  { to: '/fleet',       icon: Truck,           label: 'Fleet'       },
-  { to: '/drivers',     icon: Users,           label: 'Drivers'     },
-  { to: '/maintenance', icon: Wrench,          label: 'Maintenance' },
-  { to: '/analytics',   icon: BarChart3,       label: 'Analytics'   },
-  { to: '/leaderboard', icon: Trophy,          label: 'Leaderboard' },
-  { to: '/driver-view', icon: Zap,             label: 'Driver View' },
+  { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard'      },
+  { to: '/dispatch',    icon: Navigation,      label: 'Dispatch'       },
+  { to: '/fleet',       icon: Truck,           label: 'Fleet'          },
+  { to: '/drivers',     icon: Users,           label: 'Drivers'        },
+  { to: '/maintenance', icon: Wrench,          label: 'Maintenance'    },
+  { to: '/fuel',        icon: BarChart3,       label: 'Fuel & Expense' },
+  { to: '/analytics',   icon: Trophy,          label: 'Analytics'      },
+  { to: '/leaderboard', icon: Zap,             label: 'Leaderboard'    },
+  { to: '/driver-view', icon: Zap,             label: 'Driver View'    },
 ]
+
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
