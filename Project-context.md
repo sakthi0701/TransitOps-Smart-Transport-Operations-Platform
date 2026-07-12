@@ -83,7 +83,7 @@ transitops/
 - [x] Phase 1: Foundation (backend + models + auth + Fleet/Driver CRUD + seed)
 - [x] Phase 2: Trip lifecycle + validations + maintenance + fuel
 - [x] Phase 3: Agentic Dispatcher + alerts + Driver View
-- [ ] Phase 4: Analytics + Leaderboard + Risk Score
+- [x] Phase 4: Analytics + Leaderboard + Risk Score
 - [ ] Phase 5: Polish + demo prep
 
 ## Phase 3 Additions & Fixes

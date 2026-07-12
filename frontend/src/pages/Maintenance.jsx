@@ -260,11 +260,10 @@ export default function Maintenance() {
       <div className="flex gap-2 mb-5">
         {['', 'Open', 'Closed'].map(s => (
           <button key={s || 'all'} onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-              statusFilter === s
-                ? 'bg-primary-600 text-white'
-                : 'bg-surface text-slate-400 hover:text-white border border-surface-border'
-            }`}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${statusFilter === s
+              ? 'bg-primary-600 text-white'
+              : 'bg-surface text-slate-400 hover:text-white border border-surface-border'
+              }`}
           >
             {s || 'All'}
           </button>
@@ -315,9 +314,9 @@ export default function Maintenance() {
                         {log.components_replaced || '—'}
                       </td>
                       <td>
-                        <p className="text-white">₹{log.total_cost.toLocaleString()}</p>
+                        <p className="text-white">${log.total_cost.toLocaleString()}</p>
                         {log.cost !== log.total_cost && (
-                          <p className="text-xs text-slate-500">Labour: ₹{log.cost.toLocaleString()}</p>
+                          <p className="text-xs text-slate-500">Labour: ${log.cost.toLocaleString()}</p>
                         )}
                       </td>
                       <td className="text-slate-400 text-sm">{log.date_logged}</td>

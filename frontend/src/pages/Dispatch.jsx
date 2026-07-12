@@ -11,16 +11,16 @@ import useRBAC from '../store/useRBAC'
 // ── Status badge helper ────────────────────────────────────────────────────────
 function TripBadge({ status }) {
   const map = {
-    Draft:      'badge-yellow',
+    Draft: 'badge-yellow',
     Dispatched: 'badge-blue',
-    Completed:  'badge-green',
-    Cancelled:  'badge-red',
+    Completed: 'badge-green',
+    Cancelled: 'badge-red',
   }
   const icons = {
-    Draft:      <Clock size={11} />,
+    Draft: <Clock size={11} />,
     Dispatched: <Zap size={11} />,
-    Completed:  <CheckCircle2 size={11} />,
-    Cancelled:  <XCircle size={11} />,
+    Completed: <CheckCircle2 size={11} />,
+    Cancelled: <XCircle size={11} />,
   }
   return (
     <span className={`${map[status] || 'badge-yellow'} flex items-center gap-1`}>
@@ -448,13 +448,12 @@ function TripDetail({ trip, drivers, vehicles, onRefresh, canDispatch }) {
           <button
             disabled={!allChecked || acting}
             onClick={handleChecklist}
-            className={`mt-3 w-full py-2 px-4 rounded-xl text-sm font-medium transition-all ${
-              allChecked
+            className={`mt-3 w-full py-2 px-4 rounded-xl text-sm font-medium transition-all ${allChecked
                 ? checklistDone
                   ? 'bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30'
                   : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30'
                 : 'bg-surface text-slate-500 cursor-not-allowed'
-            }`}
+              }`}
           >
             {checklistDone ? '✓ Checklist Complete (click to unmark)' : allChecked ? 'Mark Checklist Complete' : `Check all ${CHECKLIST_ITEMS.length} items first`}
           </button>
@@ -651,11 +650,10 @@ export default function Dispatch() {
           <button
             key={s || 'all'}
             onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-              statusFilter === s
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${statusFilter === s
                 ? 'bg-primary-600 text-white'
                 : 'bg-surface text-slate-400 hover:text-white hover:bg-surface-card border border-surface-border'
-            }`}
+              }`}
           >
             {s || 'All'}
           </button>
@@ -690,11 +688,10 @@ export default function Dispatch() {
                     key={trip.id}
                     id={`trip-${trip.id}`}
                     onClick={() => setSelected(isSelected ? null : trip)}
-                    className={`w-full text-left card p-4 transition-all border ${
-                      isSelected
+                    className={`w-full text-left card p-4 transition-all border ${isSelected
                         ? 'border-primary-500/50 bg-primary-900/10'
                         : 'border-surface-border hover:border-slate-600'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div>

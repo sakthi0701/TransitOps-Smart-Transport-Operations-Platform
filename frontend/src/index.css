@@ -4,260 +4,386 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME TOKENS — Light (default) & Dark (via .dark on <html>)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Backgrounds */
+  --bg-canvas:      #f4f5f7;   /* page canvas */
+  --bg-card:        #ffffff;   /* cards / sidebar */
+  --bg-card-alt:    #f9fafb;   /* table alt rows */
+  --bg-input:       #ffffff;
+  --bg-muted:       #e5e7eb;
+
+  /* Borders */
+  --border-color:   #d1d5db;
+  --border-muted:   #e5e7eb;
+
+  /* Text */
+  --text-primary:   #111827;   /* headings */
+  --text-secondary: #374151;   /* body */
+  --text-muted:     #6b7280;   /* captions/labels */
+  --text-faint:     #9ca3af;   /* placeholders */
+  --text-disabled:  #d1d5db;
+
+  /* Accent — Burnt Orange (unchanged across themes) */
+  --accent:         #e65100;
+  --accent-hover:   #ff6f00;
+
+  /* Scrollbar */
+  --scrollbar-thumb: #d1d5db;
+}
+
+html.dark {
+  /* Backgrounds */
+  --bg-canvas:      #121212;
+  --bg-card:        #1e1e2e;
+  --bg-card-alt:    #161622;
+  --bg-input:       #1e1e2e;
+  --bg-muted:       #555555;
+
+  /* Borders */
+  --border-color:   #888888;
+  --border-muted:   rgba(136, 136, 136, 0.25);
+
+  /* Text */
+  --text-primary:   #e0e0e0;
+  --text-secondary: #c8c8c8;
+  --text-muted:     #888888;
+  --text-faint:     #555555;
+  --text-disabled:  #555555;
+
+  /* Scrollbar */
+  --scrollbar-thumb: #555555;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE LAYER
+   ═══════════════════════════════════════════════════════════════════════════ */
 @layer base {
   body {
-    @apply bg-surface text-slate-100 font-sans antialiased;
-    background: #121212; /* Canvas: Deep Charcoal Grey */
+    @apply font-sans antialiased;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
     min-height: 100vh;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
   * {
-    @apply border-surface-border/30;
+    border-color: var(--border-color);
   }
 
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-surface;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-surface-muted rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary-600;
-  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-canvas); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT LAYER
+   ═══════════════════════════════════════════════════════════════════════════ */
 @layer components {
-  /* ── Card ──────────────────────────────────────────────────────────────── */
+
+  /* ── Card ─────────────────────────────────────────────────────────────── */
   .card {
-    @apply bg-surface-card border border-surface-border/20 rounded-xl shadow-xl shadow-black/40;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    @apply rounded-xl shadow-sm;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+
+  html.dark .card {
+    @apply shadow-xl shadow-black/40;
   }
 
   .card-glass {
-    background: rgba(30, 30, 46, 0.85); /* Card background #1E1E2E with opacity */
+    background: rgba(255, 255, 255, 0.80);
     backdrop-filter: blur(12px);
-    @apply border border-surface-border/20 rounded-xl shadow-2xl shadow-black/50;
+    border: 1px solid var(--border-color);
+    @apply rounded-xl shadow-md;
   }
 
-  /* ── Buttons ────────────────────────────────────────────────────────────── */
+  html.dark .card-glass {
+    background: rgba(30, 30, 46, 0.85);
+    @apply shadow-2xl shadow-black/50;
+  }
+
+  /* ── Buttons ──────────────────────────────────────────────────────────── */
   .btn {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
            font-semibold text-sm transition-all duration-150 cursor-pointer
-           focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-surface
+           focus:outline-none focus:ring-2 focus:ring-offset-1
            disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-primary {
-    @apply btn bg-primary-600 hover:bg-primary-500 text-white focus:ring-primary-500
-           shadow-lg shadow-primary-900/20;
+    @apply btn text-white;
+    background-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(230, 81, 0, 0.20);
   }
+  .btn-primary:hover { background-color: var(--accent-hover); }
+  .btn-primary:focus { ring-color: var(--accent); }
 
   .btn-accent {
-    @apply btn bg-primary-600 hover:bg-primary-500 text-white
-           focus:ring-primary-500 shadow-lg shadow-primary-900/20;
+    @apply btn-primary;
   }
 
   .btn-ghost {
-    @apply btn bg-transparent hover:bg-white/5 text-slate-400 hover:text-white
-           border border-surface-border/40 hover:border-primary-600 focus:ring-primary-500;
+    @apply btn bg-transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+  }
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-muted);
+    border-color: var(--accent);
   }
 
   .btn-danger {
-    @apply btn bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white
-           border border-red-500/30 focus:ring-red-500;
+    @apply btn;
+    background-color: rgba(239, 83, 80, 0.08);
+    color: #ef5350;
+    border: 1px solid rgba(239, 83, 80, 0.30);
+  }
+  .btn-danger:hover {
+    background-color: #ef5350;
+    color: #ffffff;
   }
 
-  .btn-sm {
-    @apply px-3 py-1.5 text-xs;
-  }
+  .btn-sm { @apply px-3 py-1.5 text-xs; }
+  .btn-lg { @apply px-6 py-3 text-base; }
 
-  .btn-lg {
-    @apply px-6 py-3 text-base;
-  }
-
-  /* ── Inputs ─────────────────────────────────────────────────────────────── */
+  /* ── Inputs ───────────────────────────────────────────────────────────── */
   .input {
-    @apply w-full px-4 py-2.5 rounded-lg text-slate-100 placeholder-slate-500
-           transition-all duration-150;
-    background-color: #1e1e2e; /* Muted Dark Grey */
-    border: 1px solid #888888; /* Medium Grey */
+    @apply w-full px-4 py-2.5 rounded-lg text-sm transition-all duration-150;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
   }
-
+  .input::placeholder { color: var(--text-faint); }
   .input:focus {
     outline: none;
-    border-color: #e65100; /* Burnt Orange on focus */
-    box-shadow: 0 0 0 2px rgba(230, 81, 0, 0.25);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.15);
   }
-
-  .input:disabled, .input[readonly] {
-    background-color: #121212;
-    border-color: #555555;
-    color: #555555;
+  .input:disabled,
+  .input[readonly] {
+    background-color: var(--bg-muted);
+    border-color: var(--border-muted);
+    color: var(--text-disabled);
+    cursor: not-allowed;
   }
-
-  .input-error {
-    @apply border-red-500 focus:ring-red-500 focus:border-red-500;
-  }
+  .input-error { border-color: #ef5350 !important; }
+  .input-error:focus { box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.15) !important; }
 
   .label {
-    @apply block text-sm font-semibold text-slate-500 mb-1.5;
+    @apply block text-sm font-semibold mb-1.5;
+    color: var(--text-muted);
   }
-
   .form-label {
-    @apply block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider;
+    @apply block text-xs font-semibold mb-1.5 uppercase tracking-wider;
+    color: var(--text-muted);
   }
 
-  /* ── Table & Data Grid Zebra Striping ────────────────────────────────────── */
+  /* ── Tables ───────────────────────────────────────────────────────────── */
   .table-wrapper {
-    @apply w-full overflow-x-auto rounded-xl border border-surface-border/25;
+    @apply w-full overflow-x-auto rounded-xl;
+    border: 1px solid var(--border-color);
   }
-
-  .table {
-    @apply w-full text-sm text-left border-collapse;
-  }
-
+  .table { @apply w-full text-sm text-left border-collapse; }
   .table thead {
-    @apply text-slate-500 uppercase text-xs tracking-wider border-b border-surface-border/30;
-    background-color: #161622;
+    @apply text-xs uppercase tracking-wider;
+    color: var(--text-muted);
+    background-color: var(--bg-card-alt);
+    border-bottom: 1px solid var(--border-color);
   }
-
-  .table th {
-    @apply px-4 py-3 font-semibold;
-  }
-
+  .table th { @apply px-4 py-3 font-semibold; }
   .table td {
-    @apply px-4 py-3 text-slate-400 border-b border-surface-border/20;
+    @apply px-4 py-3;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-muted);
   }
+  .table tbody tr:nth-child(even) { background-color: var(--bg-card-alt); }
+  .table tbody tr:nth-child(odd)  { background-color: var(--bg-card); }
+  .table tbody tr:hover { background-color: rgba(230, 81, 0, 0.04) !important; }
 
-  .table tbody tr:nth-child(even) {
-    background-color: #1e1e2e; /* Even Rows: Muted Dark Grey */
-  }
-
-  .table tbody tr:nth-child(odd) {
-    background-color: #161622; /* Odd Rows: Alternate Dark Grey */
-  }
-
-  .table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.02) !important;
-  }
-
-  /* data-table — same as .table, used by CRUD pages */
-  .data-table {
-    @apply w-full text-sm text-left border-collapse;
-  }
-
+  /* data-table — same semantics */
+  .data-table { @apply w-full text-sm text-left border-collapse; }
   .data-table thead {
-    @apply text-slate-500 uppercase text-xs tracking-wider border-b border-surface-border/30;
-    background-color: #161622;
+    @apply text-xs uppercase tracking-wider;
+    color: var(--text-muted);
+    background-color: var(--bg-card-alt);
+    border-bottom: 1px solid var(--border-color);
   }
-
-  .data-table th {
-    @apply px-4 py-3 font-semibold;
-  }
-
+  .data-table th { @apply px-4 py-3 font-semibold; }
   .data-table td {
-    @apply px-4 py-3 text-slate-400 border-b border-surface-border/20;
+    @apply px-4 py-3;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-muted);
   }
+  .data-table tbody tr:nth-child(even) { background-color: var(--bg-card-alt); }
+  .data-table tbody tr:nth-child(odd)  { background-color: var(--bg-card); }
+  .data-table tbody tr:hover { background-color: rgba(230, 81, 0, 0.04) !important; }
 
-  .data-table tbody tr:nth-child(even) {
-    background-color: #1e1e2e;
-  }
-
-  .data-table tbody tr:nth-child(odd) {
-    background-color: #161622;
-  }
-
-  .data-table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.02) !important;
-  }
-
-  /* ── Status Badges ──────────────────────────────────────────────────────── */
+  /* ── Badges ───────────────────────────────────────────────────────────── */
   .badge {
     @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
   }
+  .badge-green  { @apply badge bg-emerald-50  text-emerald-700 border border-emerald-200; }
+  .badge-yellow { @apply badge bg-orange-50   text-orange-700  border border-orange-200; }
+  .badge-red    { @apply badge bg-red-50      text-red-700     border border-red-200; }
+  .badge-blue   { @apply badge bg-blue-50     text-blue-700    border border-blue-200; }
+  .badge-gray   { @apply badge bg-gray-100    text-gray-600    border border-gray-200; }
+  .badge-teal   { @apply badge bg-blue-50     text-blue-700    border border-blue-200; }
 
-  .badge-green  { @apply badge bg-emerald-500/10 text-emerald-500 border border-emerald-500/20; }
-  .badge-yellow { @apply badge bg-primary-500/10 text-primary-500 border border-primary-500/20; }
-  .badge-red    { @apply badge bg-red-500/10 text-red-500 border border-red-500/20; }
-  .badge-blue   { @apply badge bg-blue-500/10 text-blue-500 border border-blue-500/20; }
-  .badge-gray   { @apply badge bg-slate-500/10 text-slate-500 border border-slate-500/20; }
-  .badge-teal   { @apply badge bg-blue-500/10 text-blue-500 border border-blue-500/20; }
+  html.dark .badge-green  { @apply bg-emerald-500/10 text-emerald-400 border-emerald-500/20; }
+  html.dark .badge-yellow { @apply bg-orange-500/10  text-orange-400  border-orange-500/20; }
+  html.dark .badge-red    { @apply bg-red-500/10     text-red-400     border-red-500/20; }
+  html.dark .badge-blue   { @apply bg-blue-500/10    text-blue-400    border-blue-500/20; }
+  html.dark .badge-gray   { @apply bg-slate-700/40   text-slate-400   border-slate-600/30; }
+  html.dark .badge-teal   { @apply bg-blue-500/10    text-blue-400    border-blue-500/20; }
 
-  /* ── KPI Card ────────────────────────────────────────────────────────────── */
+  /* ── KPI Card ─────────────────────────────────────────────────────────── */
   .kpi-card {
     @apply card p-5 flex items-start gap-4 animate-fade-in;
-    background-color: #1e1e2e;
   }
+  .kpi-icon { @apply p-3 rounded-xl flex-shrink-0; }
 
-  .kpi-icon {
-    @apply p-3 rounded-xl flex-shrink-0;
-  }
-
-  /* ── Sidebar ────────────────────────────────────────────────────────────── */
+  /* ── Sidebar ──────────────────────────────────────────────────────────── */
   .sidebar-link {
     @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold
-           text-slate-500 hover:text-slate-100 hover:bg-white/5
            transition-all duration-150 cursor-pointer;
+    color: var(--text-muted);
   }
-
+  .sidebar-link:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-muted);
+  }
   .sidebar-link.active {
-    @apply text-slate-100 bg-primary-600/15 border border-primary-600/35;
+    color: var(--accent);
+    background-color: rgba(230, 81, 0, 0.08);
+    border: 1px solid rgba(230, 81, 0, 0.25);
   }
 
-  /* ── Modal ──────────────────────────────────────────────────────────────── */
+  /* ── Modal ────────────────────────────────────────────────────────────── */
   .modal-overlay {
-    @apply fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50
-           animate-fade-in;
+    @apply fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in;
   }
+  html.dark .modal-overlay { @apply bg-black/70; }
 
   .modal {
-    @apply card w-full max-w-lg mx-4 p-6 animate-slide-up shadow-2xl shadow-black/80;
-    background-color: #1e1e2e;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    @apply card w-full max-w-lg mx-4 p-6 animate-slide-up;
+    background-color: var(--bg-card);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
   }
+  html.dark .modal { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.70); }
 
-  /* ── Page header ────────────────────────────────────────────────────────── */
-  .page-header {
-    @apply flex items-center justify-between mb-6;
-  }
-
-  .page-title {
-    @apply text-2xl font-bold text-slate-100;
-  }
-
-  .page-subtitle {
-    @apply text-sm text-slate-500 mt-0.5;
-  }
+  /* ── Page header ──────────────────────────────────────────────────────── */
+  .page-header { @apply flex items-center justify-between mb-6; }
+  .page-title  { @apply text-2xl font-bold; color: var(--text-primary); }
+  .page-subtitle { @apply text-sm mt-0.5; color: var(--text-muted); }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   UTILITY LAYER
+   ═══════════════════════════════════════════════════════════════════════════ */
 @layer utilities {
-  .bg-gradient-brand {
-    background: #e65100; /* Orange accent */
-  }
+  .bg-gradient-brand { background-color: var(--accent); }
 
   .text-gradient-brand {
-    background: linear-gradient(135deg, #e0e0e0, #e65100);
+    background: linear-gradient(135deg, #374151, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  html.dark .text-gradient-brand {
+    background: linear-gradient(135deg, #e0e0e0, var(--accent));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .glow-primary {
-    box-shadow: 0 0 20px rgba(230, 81, 0, 0.25);
-  }
+  .glow-primary { box-shadow: 0 0 20px rgba(230, 81, 0, 0.25); }
+  .glow-accent  { box-shadow: 0 0 20px rgba(230, 81, 0, 0.20); }
 
-  .glow-accent {
-    box-shadow: 0 0 20px rgba(230, 81, 0, 0.2);
-  }
-
-  .hover\:bg-white\/3:hover {
-    background-color: rgba(255, 255, 255, 0.02);
+  /* Theme transition helper */
+  .theme-transition {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL LIGHT-MODE OVERRIDES
+   Override hardcoded dark Tailwind classes used across page components.
+   In dark mode (.dark on <html>), the original values take effect naturally.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* text-white → readable dark text in light mode */
+html:not(.dark) .text-white {
+  color: var(--text-primary) !important;
+}
+
+/* text-slate-100 / 200 / 300 → proper dark text in light mode */
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200,
+html:not(.dark) .text-slate-300 {
+  color: var(--text-secondary) !important;
+}
+
+/* text-slate-400 / 500 → muted text in light mode */
+html:not(.dark) .text-slate-400,
+html:not(.dark) .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+/* bg-surface → light canvas background */
+html:not(.dark) .bg-surface {
+  background-color: var(--bg-card-alt) !important;
+}
+
+/* bg-surface-card → white card background */
+html:not(.dark) .bg-surface-card {
+  background-color: var(--bg-card) !important;
+}
+
+/* hover:bg-white\/5 and similar — too subtle on white, use a soft grey */
+html:not(.dark) .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html:not(.dark) .hover\:bg-white\/3:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+html:not(.dark) .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* border-surface-border → light border */
+html:not(.dark) .border-surface-border {
+  border-color: var(--border-color) !important;
+}
+
+/* Pulse skeleton shimmer — light mode */
+html:not(.dark) .animate-pulse {
+  background-color: var(--bg-muted);
+}
+
+/* hover:text-white in buttons/links → text-primary in light mode */
+html:not(.dark) .hover\:text-white:hover {
+  color: var(--text-primary) !important;
+}
+
+/* hover:text-slate-300 in light mode */
+html:not(.dark) .hover\:text-slate-300:hover {
+  color: var(--text-secondary) !important;
+}
+
+/* Quick Actions bg-surface row in Dashboard */
+html:not(.dark) .bg-surface.border {
+  background-color: var(--bg-card-alt) !important;
+}
+
+/* Risk row hover in Dashboard */
+html:not(.dark) .hover\:bg-white\/3 {
+  color: var(--text-primary);
+}

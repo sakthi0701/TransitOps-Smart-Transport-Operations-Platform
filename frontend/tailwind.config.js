@@ -8,7 +8,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Redefined color tokens for professional high-density dark mode
         primary: {
           50:  "#fff3e0",
           100: "#ffe0b2",
@@ -23,45 +22,49 @@ export default {
           950: "#7d2600",
         },
         accent: {
-          DEFAULT: "#e65100",  // Burnt Orange action anchor
+          DEFAULT: "#e65100",
           dark:    "#ff6f00",
         },
+        // Surface tokens — light-mode defaults (dark overridden via CSS vars)
         surface: {
-          DEFAULT: "#121212",  // Main Canvas: Deep Charcoal Grey
-          card:    "#1e1e2e",  // Containers/Cards: Muted Dark Grey
-          border:  "#888888",  // Subtle grey borders
-          muted:   "#555555",  // Disabled/Read-only
+          DEFAULT: "#f4f5f7",   // page canvas (light)
+          card:    "#ffffff",   // cards/sidebar (light)
+          border:  "#d1d5db",   // borders (light)
+          muted:   "#e5e7eb",   // muted bg (light)
         },
-        // Override standard Tailwind color shades for absolute consistency across existing elements
+        // Slate — standard Tailwind neutral scale restored for light mode
         slate: {
-          50:  "#e0e0e0",
-          100: "#e0e0e0",  // Crisp Off-White primary text
-          200: "#e0e0e0",
-          300: "#e0e0e0",
-          400: "#a0a0a0",  // Muted Grey dense table text
-          500: "#888888",  // Medium Grey secondary captions/labels
-          600: "#888888",
-          700: "#555555",
-          800: "#333333",
-          900: "#1e1e2e",
+          50:  "#f9fafb",
+          100: "#f3f4f6",
+          200: "#e5e7eb",
+          300: "#d1d5db",
+          400: "#9ca3af",
+          500: "#6b7280",
+          600: "#4b5563",
+          700: "#374151",
+          800: "#1f2937",
+          900: "#111827",
         },
         emerald: {
-          400: "#4caf50",  // Forest Green
+          400: "#4caf50",
           500: "#4caf50",
         },
         red: {
-          400: "#ef5350",  // Soft Red
+          400: "#ef5350",
           500: "#ef5350",
           600: "#ef5350",
         },
         blue: {
-          300: "#42a5f5",  // Pale Blue
+          50:  "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#42a5f5",
           400: "#42a5f5",
           500: "#42a5f5",
           600: "#42a5f5",
         },
         teal: {
-          400: "#42a5f5",  // Map teal badges to Pale Blue status as well
+          400: "#42a5f5",
           500: "#42a5f5",
         }
       },
@@ -70,18 +73,18 @@ export default {
         mono: ["JetBrains Mono", "monospace"],
       },
       animation: {
-        "fade-in": "fadeIn 0.2s ease-in-out",
-        "slide-up": "slideUp 0.3s ease-out",
+        "fade-in":    "fadeIn 0.2s ease-in-out",
+        "slide-up":   "slideUp 0.3s ease-out",
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
       keyframes: {
         fadeIn: {
-          "0%": { opacity: "0" },
+          "0%":   { opacity: "0" },
           "100%": { opacity: "1" },
         },
         slideUp: {
-          "0%": { transform: "translateY(8px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+          "0%":   { transform: "translateY(8px)", opacity: "0" },
+          "100%": { transform: "translateY(0)",   opacity: "1" },
         },
       },
     },

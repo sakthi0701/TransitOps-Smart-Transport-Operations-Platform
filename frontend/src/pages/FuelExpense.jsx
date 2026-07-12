@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { Fuel, Receipt, Plus, X, Trash2, RefreshCw, TrendingDown, DollarSign, Lock } from 'lucide-react'
+import { Fuel, Receipt, Plus, X, Trash2, RefreshCw, TrendingDown, DollarSign, Lock, IndianRupee } from 'lucide-react'
 import api from '../api/client'
 import toast from 'react-hot-toast'
 import useRBAC from '../store/useRBAC'
@@ -256,13 +256,13 @@ export default function FuelExpense() {
             </span>
           )}
           <button id="refresh-fuel" onClick={loadAll} className="btn-ghost btn-sm"><RefreshCw size={14} /> Refresh</button>
-          
+
           {canManageFinance && (
             <button id="log-expense-btn" onClick={() => setShowExpenseModal(true)} className="btn-ghost btn-sm text-purple-400 border-purple-500/30 hover:bg-purple-500/10">
               <Receipt size={14} /> Log Expense
             </button>
           )}
-          
+
           {(canManageFinance || can('log_fuel')) && (
             <button id="log-fuel-btn" onClick={() => setShowFuelModal(true)} className="btn-primary btn-sm">
               <Fuel size={14} /> Log Fuel
@@ -276,7 +276,7 @@ export default function FuelExpense() {
         {[
           { label: 'Total Fuel Cost', value: `₹${totalFuelCost.toLocaleString()}`, sub: `${totalFuelLiters.toFixed(1)} liters`, icon: Fuel, color: 'text-teal-400', bg: 'bg-teal-500/15' },
           { label: 'Total Expenses', value: `₹${totalExpenses.toLocaleString()}`, sub: `${expenses.length} record${expenses.length !== 1 ? 's' : ''}`, icon: Receipt, color: 'text-purple-400', bg: 'bg-purple-500/15' },
-          { label: 'Total Operational Cost', value: `₹${totalOpCost.toLocaleString()}`, sub: 'Fuel + Expenses', icon: DollarSign, color: 'text-yellow-400', bg: 'bg-yellow-500/15' },
+          { label: 'Total Operational Cost', value: `₹${totalOpCost.toLocaleString()}`, sub: 'Fuel + Expenses', icon: IndianRupee, color: 'text-yellow-400', bg: 'bg-yellow-500/15' },
           { label: 'Avg Cost/Liter', value: totalFuelLiters > 0 ? `₹${(totalFuelCost / totalFuelLiters).toFixed(2)}` : '—', sub: 'Fleet average', icon: TrendingDown, color: 'text-primary-400', bg: 'bg-primary-600/15' },
         ].map(({ label, value, sub, icon: Icon, color, bg }) => (
           <div key={label} className="card p-4 flex items-center gap-4">
@@ -301,11 +301,10 @@ export default function FuelExpense() {
           <button
             key={id}
             onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === id
-                ? 'bg-primary-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === id
+              ? 'bg-primary-600 text-white shadow-sm'
+              : 'text-slate-400 hover:text-white'
+              }`}
           >
             <Icon size={14} /> {label}
           </button>
@@ -342,8 +341,8 @@ export default function FuelExpense() {
                     <tr key={log.id}>
                       <td className="font-medium text-white">{vehicleName(log.vehicle_id)}</td>
                       <td className="text-teal-300">{log.liters.toFixed(1)} L</td>
-                      <td className="text-white">₹{log.cost.toLocaleString()}</td>
-                      <td className="text-slate-400">₹{(log.cost / log.liters).toFixed(2)}</td>
+                      <td className="text-white">${log.cost.toLocaleString()}</td>
+                      <td className="text-slate-400">${(log.cost / log.liters).toFixed(2)}</td>
                       <td className="text-slate-400 text-sm">{log.date}</td>
                       <td className="text-slate-500 text-sm">{log.trip_id ? `#${log.trip_id}` : '—'}</td>
                       <td>
@@ -378,7 +377,7 @@ export default function FuelExpense() {
                   <tr>
                     <th>Vehicle</th>
                     <th>Type</th>
-                    <th>Amount (₹)</th>
+                    <th>Amount ($)</th>
                     <th>Date</th>
                     <th></th>
                   </tr>
@@ -390,7 +389,7 @@ export default function FuelExpense() {
                       <td>
                         <span className="badge-blue">{exp.type}</span>
                       </td>
-                      <td className="text-white">₹{exp.amount.toLocaleString()}</td>
+                      <td className="text-white">${exp.amount.toLocaleString()}</td>
                       <td className="text-slate-400 text-sm">{exp.date}</td>
                       <td>
                         {canManageFinance ? (

@@ -104,7 +104,7 @@ function VehicleModal({ vehicle, onClose, onSaved }) {
               <input id="v-odometer" type="number" className="input" placeholder="0" {...register('odometer_km')} />
             </div>
             <div>
-              <label className="label">Acquisition Cost (₹)</label>
+              <label className="label">Acquisition Cost ($)</label>
               <input id="v-cost" type="number" className={`input ${errors.acquisition_cost ? 'input-error' : ''}`} placeholder="1200000" {...register('acquisition_cost')} />
               {errors.acquisition_cost && <p className="mt-1 text-xs text-red-400">{errors.acquisition_cost.message}</p>}
             </div>
@@ -325,8 +325,8 @@ export default function Fleet() {
       </div>
 
       {/* Modals */}
-      {modal === 'add'    && <VehicleModal vehicle={null}     onClose={() => setModal(null)} onSaved={loadVehicles} />}
-      {modal === 'edit'   && <VehicleModal vehicle={selected} onClose={() => setModal(null)} onSaved={loadVehicles} />}
+      {modal === 'add' && <VehicleModal vehicle={null} onClose={() => setModal(null)} onSaved={loadVehicles} />}
+      {modal === 'edit' && <VehicleModal vehicle={selected} onClose={() => setModal(null)} onSaved={loadVehicles} />}
       {modal === 'delete' && <DeleteConfirm vehicle={selected} onClose={() => setModal(null)} onDeleted={loadVehicles} />}
     </div>
   )

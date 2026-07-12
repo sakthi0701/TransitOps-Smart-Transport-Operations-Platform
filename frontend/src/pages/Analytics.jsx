@@ -49,7 +49,7 @@ export default function Analytics() {
     // Standard file download trigger from backend endpoint
     const url = `${api.defaults.baseURL}/analytics/export/csv`
     const token = localStorage.getItem('token') // get token to attach if needed or trigger direct download
-    
+
     // We can open the URL in a new window or trigger download via window.location
     // Since it's protected, we can also download it via axios but direct window.open is easy if token is set.
     // Let's download using fetch/axios to keep auth headers!
@@ -282,11 +282,10 @@ export default function Analytics() {
                     {m.role === 'user' ? 'Manager' : 'TransitOps Copilot'}
                   </div>
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-line leading-relaxed ${
-                      m.role === 'user'
+                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-line leading-relaxed ${m.role === 'user'
                         ? 'bg-primary-600 text-white rounded-tr-none'
                         : 'bg-surface border border-surface-border text-slate-200 rounded-tl-none'
-                    }`}
+                      }`}
                   >
                     {m.text}
 

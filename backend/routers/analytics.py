@@ -450,14 +450,14 @@ def conversational_search(
         total_cost = maint_cost + fuel_cost + other_cost
 
         data = [
-            {"Cost Category": "Fuel Purchases ⛽", "Amount": f"${fuel_cost:,.2f}"},
-            {"Cost Category": "Maintenance & Repairs 🔧", "Amount": f"${maint_cost:,.2f}"},
-            {"Cost Category": "Tolls & Other Expenses 🛣️", "Amount": f"${other_cost:,.2f}"},
-            {"Cost Category": "Total Operational Cost 💰", "Amount": f"${total_cost:,.2f}"}
+            {"Cost Category": "Fuel Purchases ⛽", "Amount": f"₹{fuel_cost:,.2f}"},
+            {"Cost Category": "Maintenance & Repairs 🔧", "Amount": f"₹{maint_cost:,.2f}"},
+            {"Cost Category": "Tolls & Other Expenses 🛣️", "Amount": f"₹{other_cost:,.2f}"},
+            {"Cost Category": "Total Operational Cost 💰", "Amount": f"₹{total_cost:,.2f}"}
         ]
 
         return ChatResponse(
-            answer=f"The total fleet operational cost is **${total_cost:,.2f}**. Here is the breakdown:",
+            answer=f"The total fleet operational cost is **₹{total_cost:,.2f}**. Here is the breakdown:",
             data=data,
             columns=["Cost Category", "Amount"]
         )

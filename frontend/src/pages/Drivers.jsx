@@ -20,10 +20,10 @@ const driverSchema = z.object({
 })
 
 const STATUS_BADGE = {
-  Available:  'badge-green',
-  'On Trip':  'badge-blue',
+  Available: 'badge-green',
+  'On Trip': 'badge-blue',
   'Off Duty': 'badge-gray',
-  Suspended:  'badge-red',
+  Suspended: 'badge-red',
 }
 
 const XP_LABEL = (level) =>
@@ -335,8 +335,8 @@ export default function Drivers() {
       </div>
 
       {/* Modals */}
-      {modal === 'add'    && <DriverModal driver={null}     onClose={() => setModal(null)} onSaved={loadDrivers} />}
-      {modal === 'edit'   && <DriverModal driver={selected} onClose={() => setModal(null)} onSaved={loadDrivers} />}
+      {modal === 'add' && <DriverModal driver={null} onClose={() => setModal(null)} onSaved={loadDrivers} />}
+      {modal === 'edit' && <DriverModal driver={selected} onClose={() => setModal(null)} onSaved={loadDrivers} />}
       {modal === 'delete' && <DeleteConfirm driver={selected} onClose={() => setModal(null)} onDeleted={loadDrivers} />}
     </div>
   )

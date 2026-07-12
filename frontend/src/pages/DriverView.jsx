@@ -83,9 +83,8 @@ function ProgressBar({ cleared, total = CHECKPOINTS_TOTAL }) {
         {Array.from({ length: total }).map((_, i) => (
           <div
             key={i}
-            className={`flex-1 h-1 rounded-full transition-all duration-500 ${
-              i < cleared ? 'bg-teal-500' : 'bg-surface-border'
-            }`}
+            className={`flex-1 h-1 rounded-full transition-all duration-500 ${i < cleared ? 'bg-teal-500' : 'bg-surface-border'
+              }`}
           />
         ))}
       </div>
@@ -372,11 +371,10 @@ export default function DriverView() {
                 {alerts.map(alert => (
                   <div
                     key={alert.id}
-                    className={`flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all ${
-                      alert.status === 'Unread'
+                    className={`flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all ${alert.status === 'Unread'
                         ? 'bg-red-500/10 border border-red-500/25'
                         : 'bg-surface'
-                    }`}
+                      }`}
                   >
                     {alert.status === 'Unread'
                       ? <Bell size={13} className="text-red-400 flex-shrink-0 mt-0.5" />

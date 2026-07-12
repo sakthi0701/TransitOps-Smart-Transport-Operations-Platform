@@ -10,9 +10,9 @@ function KpiCard({ icon: Icon, label, value, sub, iconBg, iconColor }) {
         <Icon size={22} className={iconColor} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-slate-400 text-sm">{label}</p>
-        <p className="text-3xl font-bold text-white mt-0.5">{value ?? '—'}</p>
-        {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{label}</p>
+        <p className="text-3xl font-bold mt-0.5" style={{ color: 'var(--text-primary)' }}>{value ?? '—'}</p>
+        {sub && <p className="text-xs mt-1" style={{ color: 'var(--text-faint)' }}>{sub}</p>}
       </div>
     </div>
   )
@@ -21,13 +21,16 @@ function KpiCard({ icon: Icon, label, value, sub, iconBg, iconColor }) {
 function RiskVehicleRow({ vehicle }) {
   const riskColor =
     vehicle.breakdown_risk_score >= 70 ? 'badge-red' :
-    vehicle.breakdown_risk_score >= 40 ? 'badge-yellow' : 'badge-green'
+      vehicle.breakdown_risk_score >= 40 ? 'badge-yellow' : 'badge-green'
 
   return (
-    <div className="flex items-center justify-between py-2.5 px-4 hover:bg-white/3 rounded-lg transition-colors">
+    <div className="flex items-center justify-between py-2.5 px-4 rounded-lg transition-colors" style={{ '--hover-bg': 'rgba(0,0,0,0.03)' }}
+      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)'}
+      onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+    >
       <div>
-        <p className="text-white text-sm font-medium">{vehicle.registration_number}</p>
-        <p className="text-slate-500 text-xs">{vehicle.model} · {vehicle.type}</p>
+        <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{vehicle.registration_number}</p>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{vehicle.model} · {vehicle.type}</p>
       </div>
       <span className={riskColor}>
         {vehicle.breakdown_risk_score >= 70 ? '🔴' : vehicle.breakdown_risk_score >= 40 ? '🟡' : '🟢'}{' '}
@@ -56,12 +59,12 @@ export default function Dashboard() {
       const vehicles = vehiclesRes.data
       const drivers = driversRes.data
 
-      const activeVehicles   = vehicles.filter(v => v.status === 'On Trip').length
-      const availableVehicles= vehicles.filter(v => v.status === 'Available').length
-      const inMaintenance    = vehicles.filter(v => v.status === 'In Shop').length
-      const driversOnDuty    = drivers.filter(d => d.status === 'On Trip').length
-      const totalVehicles    = vehicles.length
-      const utilization      = totalVehicles > 0
+      const activeVehicles = vehicles.filter(v => v.status === 'On Trip').length
+      const availableVehicles = vehicles.filter(v => v.status === 'Available').length
+      const inMaintenance = vehicles.filter(v => v.status === 'In Shop').length
+      const driversOnDuty = drivers.filter(d => d.status === 'On Trip').length
+      const totalVehicles = vehicles.length
+      const utilization = totalVehicles > 0
         ? Math.round((activeVehicles / totalVehicles) * 100)
         : 0
 
@@ -79,12 +82,12 @@ export default function Dashboard() {
   }
 
   const KPI_CARDS = kpis ? [
-    { icon: Truck,      label: 'Active Vehicles',    value: kpis.activeVehicles,    sub: `of ${kpis.totalVehicles} total`,         iconBg: 'bg-blue-500/15',   iconColor: 'text-blue-500' },
-    { icon: Activity,   label: 'Available Vehicles',  value: kpis.availableVehicles, sub: 'ready to dispatch',                      iconBg: 'bg-emerald-500/15',  iconColor: 'text-emerald-500' },
-    { icon: Wrench,     label: 'In Maintenance',      value: kpis.inMaintenance,     sub: 'in shop / offline',                      iconBg: 'bg-slate-500/15',    iconColor: 'text-slate-400' },
-    { icon: Users,      label: 'Drivers On Duty',     value: kpis.driversOnDuty,     sub: `of ${kpis.totalDrivers} registered`,     iconBg: 'bg-blue-500/15',     iconColor: 'text-blue-500' },
-    { icon: TrendingUp, label: 'Fleet Utilization',   value: `${kpis.utilization}%`, sub: 'active / total vehicles',                iconBg: 'bg-blue-500/15',     iconColor: 'text-blue-500'   },
-    { icon: Navigation, label: 'Available Drivers',   value: kpis.totalDrivers - kpis.driversOnDuty, sub: 'assignable now',        iconBg: 'bg-emerald-500/15',  iconColor: 'text-emerald-500' },
+    { icon: Truck, label: 'Active Vehicles', value: kpis.activeVehicles, sub: `of ${kpis.totalVehicles} total`, iconBg: 'bg-blue-500/15', iconColor: 'text-blue-500' },
+    { icon: Activity, label: 'Available Vehicles', value: kpis.availableVehicles, sub: 'ready to dispatch', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500' },
+    { icon: Wrench, label: 'In Maintenance', value: kpis.inMaintenance, sub: 'in shop / offline', iconBg: 'bg-slate-500/15', iconColor: 'text-slate-400' },
+    { icon: Users, label: 'Drivers On Duty', value: kpis.driversOnDuty, sub: `of ${kpis.totalDrivers} registered`, iconBg: 'bg-blue-500/15', iconColor: 'text-blue-500' },
+    { icon: TrendingUp, label: 'Fleet Utilization', value: `${kpis.utilization}%`, sub: 'active / total vehicles', iconBg: 'bg-blue-500/15', iconColor: 'text-blue-500' },
+    { icon: Navigation, label: 'Available Drivers', value: kpis.totalDrivers - kpis.driversOnDuty, sub: 'assignable now', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-500' },
   ] : []
 
   return (
@@ -118,14 +121,14 @@ export default function Dashboard() {
         <div className="card p-6">
           <div className="flex items-center gap-2 mb-4">
             <AlertTriangle size={18} className="text-blue-500" />
-            <h2 className="text-white font-semibold">Maintenance Risk Alerts</h2>
+            <h2 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Maintenance Risk Alerts</h2>
           </div>
           {loading ? (
             <div className="space-y-2">
               {[...Array(3)].map((_, i) => <div key={i} className="h-10 rounded-lg bg-surface animate-pulse" />)}
             </div>
           ) : kpis?.highRisk?.length === 0 ? (
-            <p className="text-slate-400 text-sm">All vehicles are in good health ✅</p>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>All vehicles are in good health ✅</p>
           ) : (
             <div className="space-y-1">
               {kpis?.highRisk?.map(v => <RiskVehicleRow key={v.id} vehicle={v} />)}
@@ -135,21 +138,27 @@ export default function Dashboard() {
 
         {/* Quick-start guide */}
         <div className="card p-6">
-          <h2 className="text-white font-semibold mb-4">Quick Actions</h2>
+          <h2 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Actions</h2>
           <div className="space-y-3">
             {[
-              { label: 'Add a Vehicle', href: '/fleet',       color: 'text-slate-300' },
-              { label: 'Register Driver', href: '/drivers',   color: 'text-slate-300' },
-              { label: 'Create a Trip',  href: '/dispatch',   color: 'text-slate-300' },
-              { label: 'View Leaderboard', href: '/leaderboard', color: 'text-slate-300' },
-            ].map(({ label, href, color }) => (
+              { label: 'Add a Vehicle',    href: '/fleet' },
+              { label: 'Register Driver',  href: '/drivers' },
+              { label: 'Create a Trip',    href: '/dispatch' },
+              { label: 'View Leaderboard', href: '/leaderboard' },
+            ].map(({ label, href }) => (
               <a
                 key={label}
                 href={href}
-                className={`flex items-center justify-between p-3 rounded-xl bg-surface hover:bg-white/5 border border-surface-border transition-all group`}
+                className="flex items-center justify-between p-3 rounded-xl border transition-all group"
+                style={{
+                  backgroundColor: 'var(--bg-card-alt)',
+                  borderColor: 'var(--border-color)',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-muted)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card-alt)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
               >
-                <span className={`text-sm font-medium ${color}`}>{label}</span>
-                <span className="text-slate-500 group-hover:text-slate-300 transition-colors">→</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+                <span className="transition-colors" style={{ color: 'var(--accent)' }}>→</span>
               </a>
             ))}
           </div>

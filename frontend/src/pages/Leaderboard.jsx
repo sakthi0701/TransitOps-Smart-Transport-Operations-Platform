@@ -193,11 +193,10 @@ export default function Leaderboard() {
                   {drivers.map((d, index) => (
                     <tr
                       key={d.driver_id}
-                      className={`hover:bg-white/3 transition-colors ${
-                        index === 0 ? 'bg-yellow-500/5' :
-                        index === 1 ? 'bg-slate-300/5' :
-                        index === 2 ? 'bg-amber-600/5' : ''
-                      }`}
+                      className={`hover:bg-white/3 transition-colors ${index === 0 ? 'bg-yellow-500/5' :
+                          index === 1 ? 'bg-slate-300/5' :
+                            index === 2 ? 'bg-amber-600/5' : ''
+                        }`}
                     >
                       <td className="py-3.5 px-4 font-bold text-white flex items-center gap-1.5">
                         {index === 0 && <span title="Winner">👑</span>}
