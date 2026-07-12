@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Plus, X, Users, Edit2, Trash2, Search, AlertTriangle, ShieldAlert } from 'lucide-react'
+import { Plus, X, Users, Edit2, Trash2, Search, AlertTriangle, ShieldAlert, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../api/client'
+import useRBAC from '../store/useRBAC'
 
 // ── Zod schema ─────────────────────────────────────────────────────────────────
 const driverSchema = z.object({
@@ -183,11 +184,14 @@ export default function Drivers() {
 
   useEffect(() => { loadDrivers() }, [])
 
+  const { canManageFleet, role } = useRBAC()
+
   const filtered = drivers.filter(d => {
     const matchSearch = !search || d.name.toLowerCase().includes(search.toLowerCase()) || d.license_number.toLowerCase().includes(search.toLowerCase())
     const matchStatus = !filterStatus || d.status === filterStatus
     return matchSearch && matchStatus
   })
+
 
   return (
     <div className="animate-fade-in">
@@ -196,9 +200,18 @@ export default function Drivers() {
           <h1 className="page-title">Driver Roster</h1>
           <p className="page-subtitle">{drivers.length} drivers registered</p>
         </div>
-        <button id="add-driver-btn" onClick={() => setModal('add')} className="btn-primary">
-          <Plus size={16} /> Register Driver
-        </button>
+        <div className="flex items-center gap-3">
+          {!canManageFleet && (
+            <span className="flex items-center gap-1.5 text-xs text-slate-400 bg-surface px-3 py-1.5 rounded-lg border border-surface-border">
+              <Lock size={11} /> {role} — read only
+            </span>
+          )}
+          {canManageFleet && (
+            <button id="add-driver-btn" onClick={() => setModal('add')} className="btn-primary">
+              <Plus size={16} /> Register Driver
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -293,20 +306,26 @@ export default function Drivers() {
                 <td><span className={STATUS_BADGE[d.status] || 'badge-gray'}>{d.status}</span></td>
                 <td>
                   <div className="flex gap-2">
-                    <button
-                      id={`edit-driver-${d.id}`}
-                      onClick={() => { setSelected(d); setModal('edit') }}
-                      className="btn-ghost btn-sm p-1.5"
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      id={`delete-driver-${d.id}`}
-                      onClick={() => { setSelected(d); setModal('delete') }}
-                      className="btn-danger btn-sm p-1.5"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    {canManageFleet ? (
+                      <>
+                        <button
+                          id={`edit-driver-${d.id}`}
+                          onClick={() => { setSelected(d); setModal('edit') }}
+                          className="btn-ghost btn-sm p-1.5"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          id={`delete-driver-${d.id}`}
+                          onClick={() => { setSelected(d); setModal('delete') }}
+                          className="btn-danger btn-sm p-1.5"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-xs text-slate-600 italic">View only</span>
+                    )}
                   </div>
                 </td>
               </tr>

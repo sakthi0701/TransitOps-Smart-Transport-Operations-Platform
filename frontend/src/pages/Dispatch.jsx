@@ -1,10 +1,12 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
   Navigation, Plus, CheckSquare, Square, Zap, X, ChevronRight,
-  Truck, Users, AlertTriangle, CheckCircle2, Clock, XCircle, RefreshCw
+  Truck, Users, AlertTriangle, CheckCircle2, Clock, XCircle, RefreshCw,
+  Sparkles, Send, Bell, Brain, Lock
 } from 'lucide-react'
 import api from '../api/client'
 import toast from 'react-hot-toast'
+import useRBAC from '../store/useRBAC'
 
 // ── Status badge helper ────────────────────────────────────────────────────────
 function TripBadge({ status }) {
@@ -147,9 +149,21 @@ function CreateTripModal({ onClose, onCreated }) {
           </div>
 
           <div>
-            <label className="form-label">Secondary Driver {longHaul && <span className="text-yellow-400 text-xs ml-1">* (must be Beginner, level ≤3)</span>}</label>
-            <select className="input" required={longHaul} value={form.secondary_driver_id} onChange={e => set('secondary_driver_id', e.target.value)}>
-              <option value="">— Optional (required for 500km+) —</option>
+            <label className="form-label">Secondary Driver
+              {longHaul && <span className="text-amber-400 text-xs ml-1">(Recommended — Beginner, level ≤3)</span>}
+            </label>
+            {longHaul && !form.secondary_driver_id && (
+              <div className="mb-2 flex items-start gap-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs">
+                <AlertTriangle size={13} className="flex-shrink-0 mt-0.5" />
+                <span>Recommended for long-haul trips. Assigning a Beginner driver (level ≤3) enables mentor-pairing. You can skip this and dispatch will still work.</span>
+              </div>
+            )}
+            <select
+              className="input"
+              value={form.secondary_driver_id}
+              onChange={e => set('secondary_driver_id', e.target.value)}
+            >
+              <option value="">— Optional (add Beginner for mentor pair) —</option>
               {drivers.filter(d => d.id !== parseInt(form.primary_driver_id)).map(d => (
                 <option key={d.id} value={d.id}>
                   {d.name} — Lvl {d.experience_level} | Safety {d.safety_score}
@@ -224,7 +238,7 @@ function CompleteModal({ trip, onClose, onDone }) {
 }
 
 // ── Trip Detail Panel ──────────────────────────────────────────────────────────
-function TripDetail({ trip, drivers, vehicles, onRefresh }) {
+function TripDetail({ trip, drivers, vehicles, onRefresh, canDispatch }) {
   const [checklistDone, setChecklistDone] = useState(trip.is_safety_checklist_complete)
   const [checkedItems, setCheckedItems] = useState(
     trip.is_safety_checklist_complete
@@ -234,6 +248,14 @@ function TripDetail({ trip, drivers, vehicles, onRefresh }) {
   const [showCompleteModal, setShowCompleteModal] = useState(false)
   const [acting, setActing] = useState(false)
 
+  // Auto-Assign (Agentic Dispatcher)
+  const [assigning, setAssigning] = useState(false)
+  const [reasoning, setReasoning] = useState('')
+
+  // Alert sender (for Dispatched trips)
+  const [alertMsg, setAlertMsg] = useState('')
+  const [sendingAlert, setSendingAlert] = useState(false)
+
   useEffect(() => {
     setChecklistDone(trip.is_safety_checklist_complete)
     setCheckedItems(
@@ -241,6 +263,9 @@ function TripDetail({ trip, drivers, vehicles, onRefresh }) {
         ? new Set(CHECKLIST_ITEMS.map((_, i) => i))
         : new Set()
     )
+    // Clear reasoning when a different trip is selected
+    setReasoning('')
+    setAlertMsg('')
   }, [trip.id, trip.is_safety_checklist_complete])
 
   const primaryDriver = drivers.find(d => d.id === trip.primary_driver_id)
@@ -293,6 +318,38 @@ function TripDetail({ trip, drivers, vehicles, onRefresh }) {
       toast.error(err.response?.data?.detail || 'Cancel failed')
     } finally {
       setActing(false)
+    }
+  }
+
+  // ── Auto-Assign (Agentic Dispatcher) ─────────────────────────────────────────
+  const handleAutoAssign = async () => {
+    setAssigning(true)
+    setReasoning('')
+    try {
+      const res = await api.post(`/trips/${trip.id}/auto-assign`)
+      setReasoning(res.data.reasoning)
+      toast.success('⚡ Auto-Assign complete! Best pair selected.')
+      onRefresh()
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Auto-Assign failed')
+    } finally {
+      setAssigning(false)
+    }
+  }
+
+  // ── Send Dispatch Alert ───────────────────────────────────────────────────────
+  const handleSendAlert = async (e) => {
+    e.preventDefault()
+    if (!alertMsg.trim()) return
+    setSendingAlert(true)
+    try {
+      await api.post('/alerts/', { trip_id: trip.id, message: alertMsg.trim() })
+      toast.success('Alert sent to driver!')
+      setAlertMsg('')
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Failed to send alert')
+    } finally {
+      setSendingAlert(false)
     }
   }
 
@@ -404,36 +461,116 @@ function TripDetail({ trip, drivers, vehicles, onRefresh }) {
         </div>
       )}
 
-      {/* Dispatch / Complete / Cancel actions */}
-      <div className="flex gap-2 pt-1">
-        {trip.status === 'Draft' && (
+      {/* ── Agentic Dispatcher — Auto-Assign (Draft trips, dispatch-capable roles only) ── */}
+      {trip.status === 'Draft' && canDispatch && (
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <Brain size={14} className="text-purple-400" />
+            <p className="text-slate-400 text-xs uppercase tracking-wider font-medium">Agentic Dispatcher</p>
+            {/* Show 'override' label when driver/vehicle already manually assigned */}
+            {trip.primary_driver_id && (
+              <span className="ml-auto text-xs text-slate-500 italic">will override manual selection</span>
+            )}
+          </div>
           <button
-            disabled={!trip.is_safety_checklist_complete || acting}
-            onClick={handleDispatch}
-            className={`flex-1 btn-primary ${!trip.is_safety_checklist_complete ? 'opacity-50 cursor-not-allowed' : ''}`}
-            title={!trip.is_safety_checklist_complete ? 'Complete checklist first' : 'Dispatch this trip'}
+            id={`auto-assign-${trip.id}`}
+            onClick={handleAutoAssign}
+            disabled={assigning}
+            className="w-full py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200
+              bg-gradient-to-r from-purple-600 to-primary-600
+              hover:from-purple-500 hover:to-primary-500
+              text-white shadow-lg shadow-purple-900/30
+              disabled:opacity-60 disabled:cursor-not-allowed
+              flex items-center justify-center gap-2"
           >
-            <Zap size={14} /> Dispatch
+            {assigning
+              ? <RefreshCw size={14} className="animate-spin" />
+              : <Sparkles size={14} />}
+            {assigning
+              ? 'Finding best match…'
+              : trip.primary_driver_id
+                ? '⚡ Override with Magic Assign'
+                : '⚡ Auto-Assign (Magic Assign)'}
           </button>
-        )}
-        {trip.status === 'Dispatched' && (
-          <button
-            onClick={() => setShowCompleteModal(true)}
-            className="flex-1 py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-all flex items-center justify-center gap-2"
-          >
-            <CheckCircle2 size={14} /> Complete
-          </button>
-        )}
-        {(trip.status === 'Draft' || trip.status === 'Dispatched') && (
-          <button
-            disabled={acting}
-            onClick={handleCancel}
-            className="flex-1 py-2 px-4 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 text-sm font-medium transition-all border border-red-500/20 flex items-center justify-center gap-2"
-          >
-            <XCircle size={14} /> Cancel
-          </button>
-        )}
-      </div>
+
+          {/* Reasoning log */}
+          {reasoning && (
+            <div className="mt-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/25 animate-fade-in">
+              <div className="flex items-start gap-2">
+                <Brain size={13} className="text-purple-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-purple-300 text-xs font-medium mb-1">AI Reasoning Log</p>
+                  <p className="text-slate-300 text-xs leading-relaxed">{reasoning}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Alert Sender — for Dispatched trips (dispatch-capable roles only) ── */}
+      {trip.status === 'Dispatched' && canDispatch && (
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <Bell size={14} className="text-yellow-400" />
+            <p className="text-slate-400 text-xs uppercase tracking-wider font-medium">Send Dispatch Alert</p>
+          </div>
+          <form onSubmit={handleSendAlert} className="flex gap-2">
+            <input
+              className="input flex-1 text-sm py-2"
+              value={alertMsg}
+              onChange={e => setAlertMsg(e.target.value)}
+              placeholder="Type a priority message to the driver…"
+              maxLength={500}
+            />
+            <button
+              type="submit"
+              disabled={sendingAlert || !alertMsg.trim()}
+              className="flex-shrink-0 py-2 px-3 rounded-xl bg-yellow-600 hover:bg-yellow-500
+                text-white text-sm font-medium transition-colors
+                disabled:opacity-50 disabled:cursor-not-allowed
+                flex items-center gap-1.5"
+            >
+              {sendingAlert ? <RefreshCw size={13} className="animate-spin" /> : <Send size={13} />}
+              Send
+            </button>
+          </form>
+          <p className="text-slate-600 text-xs mt-1.5">Driver View polls for this every 10s</p>
+        </div>
+      )}
+
+      {/* Dispatch / Complete / Cancel actions (dispatch-capable roles only) */}
+      {canDispatch && (
+        <div className="flex gap-2 pt-1">
+          {trip.status === 'Draft' && (
+            <button
+              disabled={!trip.is_safety_checklist_complete || acting}
+              onClick={handleDispatch}
+              className={`flex-1 btn-primary ${!trip.is_safety_checklist_complete ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title={!trip.is_safety_checklist_complete ? 'Complete checklist first' : 'Dispatch this trip'}
+            >
+              <Zap size={14} /> Dispatch
+            </button>
+          )}
+          {trip.status === 'Dispatched' && (
+            <button
+              onClick={() => setShowCompleteModal(true)}
+              className="flex-1 py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-all flex items-center justify-center gap-2"
+            >
+              <CheckCircle2 size={14} /> Complete
+            </button>
+          )}
+          {(trip.status === 'Draft' || trip.status === 'Dispatched') && (
+            <button
+              disabled={acting}
+              onClick={handleCancel}
+              className="flex-1 py-2 px-4 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 text-sm font-medium transition-all border border-red-500/20 flex items-center justify-center gap-2"
+            >
+              <XCircle size={14} /> Cancel
+            </button>
+          )}
+        </div>
+      )}
 
       {showCompleteModal && (
         <CompleteModal trip={trip} onClose={() => setShowCompleteModal(false)} onDone={onRefresh} />
@@ -477,6 +614,8 @@ export default function Dispatch() {
 
   useEffect(() => { loadAll() }, [])
 
+  const { canDispatch, can, role } = useRBAC()
+
   const filtered = statusFilter ? trips.filter(t => t.status === statusFilter) : trips
 
   const STATUS_FILTERS = ['', 'Draft', 'Dispatched', 'Completed', 'Cancelled']
@@ -490,12 +629,19 @@ export default function Dispatch() {
           <p className="page-subtitle">Manage trip lifecycle — create, dispatch, complete, cancel</p>
         </div>
         <div className="flex items-center gap-3">
+          {!canDispatch && (
+            <span className="flex items-center gap-1.5 text-xs text-slate-400 bg-surface px-3 py-1.5 rounded-lg border border-surface-border">
+              <Lock size={11} /> {role} — view only
+            </span>
+          )}
           <button id="refresh-trips" onClick={loadAll} className="btn-ghost btn-sm">
             <RefreshCw size={14} /> Refresh
           </button>
-          <button id="create-trip-btn" onClick={() => setShowCreate(true)} className="btn-primary btn-sm">
-            <Plus size={14} /> New Trip
-          </button>
+          {canDispatch && (
+            <button id="create-trip-btn" onClick={() => setShowCreate(true)} className="btn-primary btn-sm">
+              <Plus size={14} /> New Trip
+            </button>
+          )}
         </div>
       </div>
 
@@ -583,6 +729,7 @@ export default function Dispatch() {
               drivers={drivers}
               vehicles={vehicles}
               onRefresh={loadAll}
+              canDispatch={canDispatch}
             />
           ) : (
             <div className="card p-10 flex flex-col items-center justify-center text-center h-full min-h-64">

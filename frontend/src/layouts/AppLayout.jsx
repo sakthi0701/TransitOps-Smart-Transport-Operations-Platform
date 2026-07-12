@@ -2,27 +2,29 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import {
   LayoutDashboard, Truck, Users, Navigation, Wrench,
-  BarChart3, Trophy, Zap, LogOut, Menu, X, ChevronRight
+  BarChart3, Trophy, UserCheck, LogOut, Menu, ChevronRight
 } from 'lucide-react'
 import useAuthStore from '../store/authStore'
+import useRBAC from '../store/useRBAC'
 import toast from 'react-hot-toast'
-
-const NAV_ITEMS = [
-  { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard'      },
-  { to: '/dispatch',    icon: Navigation,      label: 'Dispatch'       },
-  { to: '/fleet',       icon: Truck,           label: 'Fleet'          },
-  { to: '/drivers',     icon: Users,           label: 'Drivers'        },
-  { to: '/maintenance', icon: Wrench,          label: 'Maintenance'    },
-  { to: '/fuel',        icon: BarChart3,       label: 'Fuel & Expense' },
-  { to: '/analytics',   icon: Trophy,          label: 'Analytics'      },
-  { to: '/leaderboard', icon: Zap,             label: 'Leaderboard'    },
-  { to: '/driver-view', icon: Zap,             label: 'Driver View'    },
-]
-
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const { user, logout } = useAuthStore()
+  const { isManager, isDispatcher, isSafety, isFinance, canDispatch, canManageFleet, canManageSafety, canManageFinance } = useRBAC()
+  
+  const NAV_ITEMS = [
+    { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard',      show: true },
+    { to: '/dispatch',    icon: Navigation,      label: 'Dispatch',       show: canDispatch || isManager },
+    { to: '/fleet',       icon: Truck,           label: 'Fleet',          show: canManageFleet || isManager },
+    { to: '/drivers',     icon: Users,           label: 'Drivers',        show: canManageFleet || isManager },
+    { to: '/maintenance', icon: Wrench,          label: 'Maintenance',    show: canManageSafety || isManager },
+    { to: '/fuel',        icon: BarChart3,       label: 'Fuel & Expense', show: canManageFinance || isManager || isDispatcher },
+    { to: '/analytics',   icon: Trophy,          label: 'Analytics',      show: isManager || isFinance || isDispatcher },
+    { to: '/leaderboard', icon: Trophy,          label: 'Leaderboard',    show: true },
+    { to: '/driver-view', icon: UserCheck,       label: 'Driver View',    show: isManager || isDispatcher },
+  ].filter(item => item.show !== false)
+
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -104,10 +106,20 @@ export default function AppLayout() {
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}
         <div className="sticky top-0 z-10 h-14 border-b border-surface-border bg-surface-card/80 backdrop-blur-md flex items-center px-6">
-          <div className="ml-auto flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-accent animate-pulse-slow" />
-            <span className="text-slate-400 text-sm">System Online</span>
-          </div>
+        <div className="ml-auto flex items-center gap-3">
+            {user?.role && (
+              <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                user.role === 'Manager'    ? 'bg-primary-600/20 text-primary-300 border border-primary-500/30' :
+                user.role === 'Dispatcher' ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30' :
+                user.role === 'Safety'     ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30' :
+                                             'bg-purple-600/20 text-purple-300 border border-purple-500/30'
+              }`}>
+                {user.role}
+              </span>
+            )}
+          <div className="w-2 h-2 rounded-full bg-accent animate-pulse-slow" />
+          <span className="text-slate-400 text-sm">System Online</span>
+        </div>
         </div>
 
         <div className="p-6">

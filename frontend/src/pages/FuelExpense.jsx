@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { Fuel, Receipt, Plus, X, Trash2, RefreshCw, TrendingDown, DollarSign } from 'lucide-react'
+import { Fuel, Receipt, Plus, X, Trash2, RefreshCw, TrendingDown, DollarSign, Lock } from 'lucide-react'
 import api from '../api/client'
 import toast from 'react-hot-toast'
+import useRBAC from '../store/useRBAC'
 
 // ── Log Fuel Modal ─────────────────────────────────────────────────────────────
 function LogFuelModal({ onClose, onSaved }) {
@@ -238,6 +239,8 @@ export default function FuelExpense() {
     } finally { setDeleting(null) }
   }
 
+  const { canManageFinance, role, can } = useRBAC()
+
   return (
     <div className="animate-fade-in">
       {/* Header */}
@@ -247,13 +250,24 @@ export default function FuelExpense() {
           <p className="page-subtitle">Track operational costs — fuel fill-ups and miscellaneous expenses</p>
         </div>
         <div className="flex items-center gap-3">
+          {!canManageFinance && !can('log_fuel') && (
+            <span className="flex items-center gap-1.5 text-xs text-slate-400 bg-surface px-3 py-1.5 rounded-lg border border-surface-border">
+              <Lock size={11} /> {role} — view only
+            </span>
+          )}
           <button id="refresh-fuel" onClick={loadAll} className="btn-ghost btn-sm"><RefreshCw size={14} /> Refresh</button>
-          <button id="log-expense-btn" onClick={() => setShowExpenseModal(true)} className="btn-ghost btn-sm text-purple-400 border-purple-500/30 hover:bg-purple-500/10">
-            <Receipt size={14} /> Log Expense
-          </button>
-          <button id="log-fuel-btn" onClick={() => setShowFuelModal(true)} className="btn-primary btn-sm">
-            <Fuel size={14} /> Log Fuel
-          </button>
+          
+          {canManageFinance && (
+            <button id="log-expense-btn" onClick={() => setShowExpenseModal(true)} className="btn-ghost btn-sm text-purple-400 border-purple-500/30 hover:bg-purple-500/10">
+              <Receipt size={14} /> Log Expense
+            </button>
+          )}
+          
+          {(canManageFinance || can('log_fuel')) && (
+            <button id="log-fuel-btn" onClick={() => setShowFuelModal(true)} className="btn-primary btn-sm">
+              <Fuel size={14} /> Log Fuel
+            </button>
+          )}
         </div>
       </div>
 
@@ -333,10 +347,12 @@ export default function FuelExpense() {
                       <td className="text-slate-400 text-sm">{log.date}</td>
                       <td className="text-slate-500 text-sm">{log.trip_id ? `#${log.trip_id}` : '—'}</td>
                       <td>
-                        <button onClick={() => handleDeleteFuel(log.id)} disabled={deleting === log.id}
-                          className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                          <Trash2 size={13} />
-                        </button>
+                        {canManageFinance ? (
+                          <button onClick={() => handleDeleteFuel(log.id)} disabled={deleting === log.id}
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+                            <Trash2 size={13} />
+                          </button>
+                        ) : null}
                       </td>
                     </tr>
                   ))}
@@ -377,10 +393,12 @@ export default function FuelExpense() {
                       <td className="text-white">₹{exp.amount.toLocaleString()}</td>
                       <td className="text-slate-400 text-sm">{exp.date}</td>
                       <td>
-                        <button onClick={() => handleDeleteExpense(exp.id)} disabled={deleting === exp.id}
-                          className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                          <Trash2 size={13} />
-                        </button>
+                        {canManageFinance ? (
+                          <button onClick={() => handleDeleteExpense(exp.id)} disabled={deleting === exp.id}
+                            className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+                            <Trash2 size={13} />
+                          </button>
+                        ) : null}
                       </td>
                     </tr>
                   ))}

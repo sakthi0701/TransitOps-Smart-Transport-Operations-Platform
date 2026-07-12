@@ -11,7 +11,8 @@ Smart Fleet Operations Platform: vehicles, drivers, trips, maintenance, fuel, an
 ## Running Servers
 | Service  | URL                         | Command |
 |----------|-----------------------------|---------|
-| Backend  | http://localhost:8000       | `.\venv\Scripts\uvicorn backend.main:app --reload --port 8000` |
+| Backend  | http://localhost:8000       | `.\venv\Scripts\Activate.ps1
+ & python -m uvicorn backend.main:app --reload --port 8000` |
 | Frontend | http://localhost:5173       | `cd frontend && npm run dev` |
 | API Docs | http://localhost:8000/docs  | (auto, Swagger UI) |
 
@@ -81,9 +82,16 @@ transitops/
 ## Phase Progress
 - [x] Phase 1: Foundation (backend + models + auth + Fleet/Driver CRUD + seed)
 - [x] Phase 2: Trip lifecycle + validations + maintenance + fuel
-- [ ] Phase 3: Agentic Dispatcher + Driver View + Alerts
+- [x] Phase 3: Agentic Dispatcher + alerts + Driver View
 - [ ] Phase 4: Analytics + Leaderboard + Risk Score
 - [ ] Phase 5: Polish + demo prep
+
+## Phase 3 Additions & Fixes
+- `backend/routers/alerts.py`       — POST/GET/PATCH alerts (one-way dispatch messages)
+- `backend/routers/trips.py`        — Added `/auto-assign` (Agentic Dispatcher) + `/checkpoint`. Secondary driver is now a soft recommendation, not a hard blocking rule.
+- `frontend/src/pages/DriverView.jsx` — Active trip tracking + checkpoint + alert polling
+- `frontend/src/store/useRBAC.js`   — Strict role-based access control matrix applied across `AppLayout.jsx`, `Fleet`, `Drivers`, `Maintenance`, `FuelExpense`, and `Dispatch`.
+- `backend/routers/maintenance.py`  — Fixed DB update logic for `breakdown_risk_score` when opening/closing maintenance logs.
 
 ## Known Issues / Notes
 - `passlib` is NOT used — direct `bcrypt` calls to avoid Python 3.13 + bcrypt 4.x incompatibility

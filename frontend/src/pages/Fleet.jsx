@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Plus, X, Truck, Edit2, Trash2, Search, AlertTriangle } from 'lucide-react'
+import { Plus, X, Truck, Edit2, Trash2, Search, AlertTriangle, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../api/client'
+import useRBAC from '../store/useRBAC'
 
 // ── Zod schema ─────────────────────────────────────────────────────────────────
 const vehicleSchema = z.object({
@@ -192,6 +193,8 @@ export default function Fleet() {
 
   useEffect(() => { loadVehicles() }, [])
 
+  const { canManageFleet, role } = useRBAC()
+
   const filtered = vehicles.filter(v => {
     const matchSearch = !search || v.registration_number.toLowerCase().includes(search.toLowerCase()) || v.model.toLowerCase().includes(search.toLowerCase())
     const matchStatus = !filterStatus || v.status === filterStatus
@@ -205,9 +208,18 @@ export default function Fleet() {
           <h1 className="page-title">Fleet Registry</h1>
           <p className="page-subtitle">{vehicles.length} vehicles registered</p>
         </div>
-        <button id="add-vehicle-btn" onClick={() => setModal('add')} className="btn-primary">
-          <Plus size={16} /> Add Vehicle
-        </button>
+        <div className="flex items-center gap-3">
+          {!canManageFleet && (
+            <span className="flex items-center gap-1.5 text-xs text-slate-400 bg-surface px-3 py-1.5 rounded-lg border border-surface-border">
+              <Lock size={11} /> {role} — read only
+            </span>
+          )}
+          {canManageFleet && (
+            <button id="add-vehicle-btn" onClick={() => setModal('add')} className="btn-primary">
+              <Plus size={16} /> Add Vehicle
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -284,20 +296,26 @@ export default function Fleet() {
                 <td><span className={STATUS_BADGE[v.status] || 'badge-gray'}>{v.status}</span></td>
                 <td>
                   <div className="flex gap-2">
-                    <button
-                      id={`edit-vehicle-${v.id}`}
-                      onClick={() => { setSelected(v); setModal('edit') }}
-                      className="btn-ghost btn-sm p-1.5"
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      id={`delete-vehicle-${v.id}`}
-                      onClick={() => { setSelected(v); setModal('delete') }}
-                      className="btn-danger btn-sm p-1.5"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    {canManageFleet ? (
+                      <>
+                        <button
+                          id={`edit-vehicle-${v.id}`}
+                          onClick={() => { setSelected(v); setModal('edit') }}
+                          className="btn-ghost btn-sm p-1.5"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          id={`delete-vehicle-${v.id}`}
+                          onClick={() => { setSelected(v); setModal('delete') }}
+                          className="btn-danger btn-sm p-1.5"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-xs text-slate-600 italic">View only</span>
+                    )}
                   </div>
                 </td>
               </tr>

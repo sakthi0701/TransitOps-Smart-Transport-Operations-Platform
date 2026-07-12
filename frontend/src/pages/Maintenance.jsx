@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
   Wrench, Plus, X, CheckCircle2, AlertTriangle, RefreshCw,
-  Truck, Clock, XCircle
+  Truck, Clock, XCircle, Lock
 } from 'lucide-react'
 import api from '../api/client'
 import toast from 'react-hot-toast'
+import useRBAC from '../store/useRBAC'
 
 // ── Status badge ───────────────────────────────────────────────────────────────
 function StatusBadge({ status }) {
@@ -206,6 +207,8 @@ export default function Maintenance() {
   // Vehicles with high risk score for the warning strip
   const highRiskVehicles = vehicles.filter(v => v.breakdown_risk_score >= 40).sort((a, b) => b.breakdown_risk_score - a.breakdown_risk_score)
 
+  const { canManageSafety, role } = useRBAC()
+
   return (
     <div className="animate-fade-in">
       {/* Header */}
@@ -215,10 +218,17 @@ export default function Maintenance() {
           <p className="page-subtitle">Vehicle repair records — status auto-updates fleet availability</p>
         </div>
         <div className="flex items-center gap-3">
+          {!canManageSafety && (
+            <span className="flex items-center gap-1.5 text-xs text-slate-400 bg-surface px-3 py-1.5 rounded-lg border border-surface-border">
+              <Lock size={11} /> {role} — view only
+            </span>
+          )}
           <button id="refresh-maintenance" onClick={loadAll} className="btn-ghost btn-sm"><RefreshCw size={14} /> Refresh</button>
-          <button id="add-maintenance-btn" onClick={() => setShowAdd(true)} className="btn-primary btn-sm">
-            <Plus size={14} /> Add Record
-          </button>
+          {canManageSafety && (
+            <button id="add-maintenance-btn" onClick={() => setShowAdd(true)} className="btn-primary btn-sm">
+              <Plus size={14} /> Add Record
+            </button>
+          )}
         </div>
       </div>
 
@@ -314,7 +324,7 @@ export default function Maintenance() {
                       <td><StatusBadge status={log.status} /></td>
                       <td>
                         <div className="flex items-center justify-end gap-2">
-                          {log.status === 'Open' && (
+                          {log.status === 'Open' && canManageSafety && (
                             <>
                               <button
                                 onClick={() => handleClose(log.id)}
@@ -334,6 +344,9 @@ export default function Maintenance() {
                           )}
                           {log.status === 'Closed' && (
                             <span className="text-xs text-slate-600">Archived</span>
+                          )}
+                          {log.status === 'Open' && !canManageSafety && (
+                            <span className="text-xs text-slate-600 italic">View only</span>
                           )}
                         </div>
                       </td>

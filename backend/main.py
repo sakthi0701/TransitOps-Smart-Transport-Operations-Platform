@@ -11,7 +11,7 @@ from backend.database import create_db_and_tables
 # Import all model modules so SQLModel.metadata has every table registered
 import backend.models  # noqa: F401
 
-from backend.routers import auth, vehicles, drivers, trips, maintenance, fuel, expenses
+from backend.routers import auth, vehicles, drivers, trips, maintenance, fuel, expenses, alerts
 
 
 @asynccontextmanager
@@ -50,6 +50,7 @@ app.include_router(trips.router, prefix=PREFIX)
 app.include_router(maintenance.router, prefix=PREFIX)
 app.include_router(fuel.router, prefix=PREFIX)
 app.include_router(expenses.router, prefix=PREFIX)
+app.include_router(alerts.router, prefix=PREFIX)
 
 
 @app.get("/")
