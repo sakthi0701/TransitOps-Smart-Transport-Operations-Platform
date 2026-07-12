@@ -117,7 +117,7 @@ export default function AppLayout() {
                 {user.role}
               </span>
             )}
-          <div className="w-2 h-2 rounded-full bg-accent animate-pulse-slow" />
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-slow" />
           <span className="text-slate-400 text-sm">System Online</span>
         </div>
         </div>

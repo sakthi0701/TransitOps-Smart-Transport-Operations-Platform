@@ -79,6 +79,16 @@ def create_driver(
     return _enrich_driver(driver)
 
 
+@router.get("/leaderboard")
+def get_drivers_leaderboard_alias(
+    session: Session = Depends(get_session),
+    _: User = Depends(get_current_user),
+):
+    """Alias for analytics leaderboard."""
+    from backend.routers.analytics import get_leaderboard
+    return get_leaderboard(session=session, _=_)
+
+
 @router.get("/{driver_id}", response_model=DriverRead)
 def get_driver(
     driver_id: int,

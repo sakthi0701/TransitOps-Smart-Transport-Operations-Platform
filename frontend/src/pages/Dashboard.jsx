@@ -79,12 +79,12 @@ export default function Dashboard() {
   }
 
   const KPI_CARDS = kpis ? [
-    { icon: Truck,      label: 'Active Vehicles',    value: kpis.activeVehicles,    sub: `of ${kpis.totalVehicles} total`,         iconBg: 'bg-primary-600/15', iconColor: 'text-primary-400' },
-    { icon: Activity,   label: 'Available Vehicles',  value: kpis.availableVehicles, sub: 'ready to dispatch',                      iconBg: 'bg-emerald-500/15',  iconColor: 'text-emerald-400' },
-    { icon: Wrench,     label: 'In Maintenance',      value: kpis.inMaintenance,     sub: 'in shop / offline',                      iconBg: 'bg-yellow-500/15',   iconColor: 'text-yellow-400' },
-    { icon: Users,      label: 'Drivers On Duty',     value: kpis.driversOnDuty,     sub: `of ${kpis.totalDrivers} registered`,     iconBg: 'bg-purple-500/15',   iconColor: 'text-purple-400' },
-    { icon: TrendingUp, label: 'Fleet Utilization',   value: `${kpis.utilization}%`, sub: 'active / total vehicles',                iconBg: 'bg-teal-500/15',     iconColor: 'text-teal-400'   },
-    { icon: Navigation, label: 'Available Drivers',   value: kpis.totalDrivers - kpis.driversOnDuty, sub: 'assignable now',        iconBg: 'bg-accent/15',       iconColor: 'text-accent'     },
+    { icon: Truck,      label: 'Active Vehicles',    value: kpis.activeVehicles,    sub: `of ${kpis.totalVehicles} total`,         iconBg: 'bg-blue-500/15',   iconColor: 'text-blue-500' },
+    { icon: Activity,   label: 'Available Vehicles',  value: kpis.availableVehicles, sub: 'ready to dispatch',                      iconBg: 'bg-emerald-500/15',  iconColor: 'text-emerald-500' },
+    { icon: Wrench,     label: 'In Maintenance',      value: kpis.inMaintenance,     sub: 'in shop / offline',                      iconBg: 'bg-slate-500/15',    iconColor: 'text-slate-400' },
+    { icon: Users,      label: 'Drivers On Duty',     value: kpis.driversOnDuty,     sub: `of ${kpis.totalDrivers} registered`,     iconBg: 'bg-blue-500/15',     iconColor: 'text-blue-500' },
+    { icon: TrendingUp, label: 'Fleet Utilization',   value: `${kpis.utilization}%`, sub: 'active / total vehicles',                iconBg: 'bg-blue-500/15',     iconColor: 'text-blue-500'   },
+    { icon: Navigation, label: 'Available Drivers',   value: kpis.totalDrivers - kpis.driversOnDuty, sub: 'assignable now',        iconBg: 'bg-emerald-500/15',  iconColor: 'text-emerald-500' },
   ] : []
 
   return (
@@ -117,7 +117,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="card p-6">
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle size={18} className="text-yellow-400" />
+            <AlertTriangle size={18} className="text-blue-500" />
             <h2 className="text-white font-semibold">Maintenance Risk Alerts</h2>
           </div>
           {loading ? (
@@ -138,10 +138,10 @@ export default function Dashboard() {
           <h2 className="text-white font-semibold mb-4">Quick Actions</h2>
           <div className="space-y-3">
             {[
-              { label: 'Add a Vehicle', href: '/fleet',       color: 'text-primary-400' },
-              { label: 'Register Driver', href: '/drivers',   color: 'text-teal-400'   },
-              { label: 'Create a Trip',  href: '/dispatch',   color: 'text-purple-400' },
-              { label: 'View Leaderboard', href: '/leaderboard', color: 'text-yellow-400' },
+              { label: 'Add a Vehicle', href: '/fleet',       color: 'text-slate-300' },
+              { label: 'Register Driver', href: '/drivers',   color: 'text-slate-300' },
+              { label: 'Create a Trip',  href: '/dispatch',   color: 'text-slate-300' },
+              { label: 'View Leaderboard', href: '/leaderboard', color: 'text-slate-300' },
             ].map(({ label, href, color }) => (
               <a
                 key={label}

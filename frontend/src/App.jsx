@@ -9,6 +9,8 @@ import Dispatch from './pages/Dispatch'
 import Maintenance from './pages/Maintenance'
 import FuelExpense from './pages/FuelExpense'
 import DriverView from './pages/DriverView'
+import Analytics from './pages/Analytics'
+import Leaderboard from './pages/Leaderboard'
 
 // Protected route wrapper
 function ProtectedRoute({ children }) {
@@ -37,9 +39,9 @@ export default function App() {
         <Route path="fuel" element={<FuelExpense />} />
         {/* Phase 3 routes */}
         <Route path="driver-view" element={<DriverView />} />
-        {/* Phase 4 routes — placeholder until built */}
-        <Route path="analytics" element={<ComingSoon title="Analytics & Reports" />} />
-        <Route path="leaderboard" element={<ComingSoon title="Eco Leaderboard" />} />
+        {/* Phase 4 routes */}
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="leaderboard" element={<Leaderboard />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

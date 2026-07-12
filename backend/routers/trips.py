@@ -77,15 +77,62 @@ def _validate_driver_assignable(driver: Driver, role: str = "Driver") -> None:
         )
 
 
-def _recalculate_risk_score(vehicle: Vehicle, cargo_weight_kg: float) -> float:
+def _recalculate_risk_score(vehicle: Vehicle, cargo_weight_kg: float, session: Session) -> float:
     """
-    Simple heuristic risk score (0–100):
-    - Odometer factor: older vehicles accumulate risk
-    - Heavy load penalty: loads ≥ 90% of capacity add 20 points
+    Advanced predictive maintenance risk score (0–100):
+    - Odometer factor (up to 40%): Structural wear based on total mileage.
+    - Maintenance interval factor (up to 30%): Distance since the last closed maintenance log.
+    - Heavy load penalty (up to 30%): Frequency of trips completed where cargo_weight >= 90% capacity.
     """
-    odometer_factor = min((vehicle.odometer_km / 500_000) * 50, 50)
-    heavy_load_penalty = 20 if (cargo_weight_kg >= 0.9 * vehicle.max_capacity_kg) else 0
-    return min(odometer_factor + heavy_load_penalty, 100.0)
+    from backend.models.maintenance_log import MaintenanceLog, MaintenanceStatus
+    from backend.models.fuel_log import FuelLog
+
+    # 1. Odometer factor (up to 40%)
+    odometer_factor = min((vehicle.odometer_km / 500_000.0) * 40.0, 40.0)
+
+    # 2. Distance since last maintenance (up to 30%)
+    # Find last closed maintenance log for this vehicle
+    last_maint = session.exec(
+        select(MaintenanceLog)
+        .where(MaintenanceLog.vehicle_id == vehicle.id)
+        .where(MaintenanceLog.status == MaintenanceStatus.CLOSED)
+        .order_by(MaintenanceLog.date_logged.desc())
+    ).first()
+
+    last_maint_trip_id = 0
+    if last_maint:
+        # Find all fuel logs for this vehicle logged before or on the maintenance date to estimate which trips were before maintenance
+        maint_date = last_maint.date_logged
+        fuel_logs_before = session.exec(
+            select(FuelLog)
+            .where(FuelLog.vehicle_id == vehicle.id)
+            .where(FuelLog.date <= maint_date)
+        ).all()
+        if fuel_logs_before:
+            last_maint_trip_id = max((fl.trip_id for fl in fuel_logs_before if fl.trip_id), default=0)
+
+    # Sum actual_distance_km of all completed trips for this vehicle with id > last_maint_trip_id
+    completed_trips = session.exec(
+        select(Trip)
+        .where(Trip.vehicle_id == vehicle.id)
+        .where(Trip.status == TripStatus.COMPLETED)
+        .where(Trip.id > last_maint_trip_id)
+    ).all()
+
+    distance_since_maint = sum((t.actual_distance_km for t in completed_trips if t.actual_distance_km), 0.0)
+
+    if not last_maint:
+        # If no maintenance log, distance since maintenance is the vehicle's odometer
+        distance_since_maint = vehicle.odometer_km
+
+    # 10,000 km is the service interval. Capped at 30.
+    maintenance_factor = min((distance_since_maint / 10000.0) * 30.0, 30.0)
+
+    # 3. Heavy load factor (up to 30%)
+    heavy_loads_count = sum(1 for t in completed_trips if t.cargo_weight_kg >= 0.9 * vehicle.max_capacity_kg)
+    heavy_load_factor = min(heavy_loads_count * 10.0, 30.0)
+
+    return min(odometer_factor + maintenance_factor + heavy_load_factor, 100.0)
 
 
 # ── Endpoints ──────────────────────────────────────────────────────────────────
@@ -335,7 +382,7 @@ def complete_trip(
     primary.total_km_run += payload.actual_distance_km
 
     # Recalculate breakdown risk score
-    vehicle.breakdown_risk_score = _recalculate_risk_score(vehicle, trip.cargo_weight_kg)
+    vehicle.breakdown_risk_score = _recalculate_risk_score(vehicle, trip.cargo_weight_kg, session)
 
     # Restore statuses
     vehicle.status = VehicleStatus.AVAILABLE
