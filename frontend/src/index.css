@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+  body {
+    @apply bg-surface text-slate-100 font-sans antialiased;
+    background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 50%, #0c1628 100%);
+    min-height: 100vh;
+  }
+
+  * {
+    @apply border-surface-border;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-muted rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-600;
+  }
+}
+
+@layer components {
+  /* ── Card ──────────────────────────────────────────────────────────────── */
+  .card {
+    @apply bg-surface-card border border-surface-border rounded-2xl shadow-xl;
+  }
+
+  .card-glass {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    @apply border border-white/10 rounded-2xl shadow-2xl;
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────────────────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+           font-medium text-sm transition-all duration-150 cursor-pointer
+           focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-surface
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-600 hover:bg-primary-500 text-white focus:ring-primary-500
+           shadow-lg shadow-primary-900/40;
+  }
+
+  .btn-accent {
+    @apply btn bg-accent hover:bg-accent-dark text-slate-900 font-semibold
+           focus:ring-accent shadow-lg shadow-teal-900/40;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent hover:bg-white/5 text-slate-300 hover:text-white
+           border border-surface-border hover:border-primary-600 focus:ring-primary-500;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white
+           border border-red-600/30 focus:ring-red-500;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+
+  /* ── Inputs ─────────────────────────────────────────────────────────────── */
+  .input {
+    @apply w-full px-4 py-2.5 bg-surface border border-surface-border rounded-lg
+           text-slate-100 placeholder-slate-500
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+           transition-all duration-150;
+  }
+
+  .input-error {
+    @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-slate-300 mb-1.5;
+  }
+
+  /* ── Table ──────────────────────────────────────────────────────────────── */
+  .table-wrapper {
+    @apply w-full overflow-x-auto rounded-xl border border-surface-border;
+  }
+
+  .table {
+    @apply w-full text-sm text-left;
+  }
+
+  .table thead {
+    @apply bg-surface text-slate-400 uppercase text-xs tracking-wider;
+  }
+
+  .table th {
+    @apply px-4 py-3 font-medium;
+  }
+
+  .table td {
+    @apply px-4 py-3 text-slate-200 border-t border-surface-border;
+  }
+
+  .table tbody tr {
+    @apply transition-colors duration-100;
+  }
+
+  .table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  /* ── Status Badges ──────────────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-green  { @apply badge bg-emerald-500/15 text-emerald-400 border border-emerald-500/30; }
+  .badge-yellow { @apply badge bg-yellow-500/15 text-yellow-400 border border-yellow-500/30; }
+  .badge-red    { @apply badge bg-red-500/15 text-red-400 border border-red-500/30; }
+  .badge-blue   { @apply badge bg-primary-500/15 text-primary-400 border border-primary-500/30; }
+  .badge-gray   { @apply badge bg-slate-500/15 text-slate-400 border border-slate-500/30; }
+  .badge-teal   { @apply badge bg-teal-500/15 text-teal-400 border border-teal-500/30; }
+
+  /* ── KPI Card ────────────────────────────────────────────────────────────── */
+  .kpi-card {
+    @apply card p-5 flex items-start gap-4 animate-fade-in;
+  }
+
+  .kpi-icon {
+    @apply p-3 rounded-xl flex-shrink-0;
+  }
+
+  /* ── Sidebar ────────────────────────────────────────────────────────────── */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium
+           text-slate-400 hover:text-white hover:bg-white/5
+           transition-all duration-150 cursor-pointer;
+  }
+
+  .sidebar-link.active {
+    @apply text-white bg-primary-600/20 border border-primary-600/30;
+  }
+
+  /* ── Modal ──────────────────────────────────────────────────────────────── */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50
+           animate-fade-in;
+  }
+
+  .modal {
+    @apply card-glass w-full max-w-lg mx-4 p-6 animate-slide-up;
+  }
+
+  /* ── Page header ────────────────────────────────────────────────────────── */
+  .page-header {
+    @apply flex items-center justify-between mb-6;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold text-white;
+  }
+
+  .page-subtitle {
+    @apply text-sm text-slate-400 mt-0.5;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-brand {
+    background: linear-gradient(135deg, #1371de, #00e5c9);
+  }
+
+  .text-gradient-brand {
+    background: linear-gradient(135deg, #59c2ff, #00e5c9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(19, 113, 222, 0.35);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(0, 229, 201, 0.25);
+  }
+
+  .hover\:bg-white\/3:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+}
