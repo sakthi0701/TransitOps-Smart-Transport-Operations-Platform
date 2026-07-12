@@ -91,11 +91,15 @@ class ChatResponse(BaseModel):
 
 def _compute_trip_revenue(trip: Trip) -> float:
     """
-    Revenue = (actual_distance_km * 3.0) + (cargo_weight_kg * 0.5)
-    If trip is not completed, actual_distance_km is None, so return 0.
+    Revenue = trip.charge_amount (actual amount charged to customer).
+    Falls back to the formula (km × 3.0) + (cargo × 0.5) only for legacy trips
+    where charge_amount was not recorded (i.e., is None or 0).
     """
     if trip.status != TripStatus.COMPLETED or not trip.actual_distance_km:
         return 0.0
+    if trip.charge_amount and trip.charge_amount > 0:
+        return trip.charge_amount
+    # Legacy fallback formula
     return (trip.actual_distance_km * 3.0) + (trip.cargo_weight_kg * 0.5)
 
 

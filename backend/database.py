@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, Session, create_engine
+from sqlalchemy import text
 from typing import Generator
 import os
 
@@ -15,6 +16,13 @@ engine = create_engine(
 def create_db_and_tables() -> None:
     """Creates all tables defined by SQLModel models. Called at app startup."""
     SQLModel.metadata.create_all(engine)
+    # Safe migration: add charge_amount column to trips if it doesn't exist yet
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE trips ADD COLUMN charge_amount REAL DEFAULT 0.0"))
+            conn.commit()
+        except Exception:
+            pass  # Column already exists — that's fine
 
 
 def get_session() -> Generator[Session, None, None]:

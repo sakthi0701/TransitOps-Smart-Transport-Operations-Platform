@@ -30,6 +30,7 @@ class Trip(SQLModel, table=True):
     planned_distance_km: float
     actual_distance_km: Optional[float] = Field(default=None)
     fuel_consumed_liters: Optional[float] = Field(default=None)
+    charge_amount: Optional[float] = Field(default=0.0)  # Amount charged to customer (₹) — real revenue
     status: TripStatus = Field(default=TripStatus.DRAFT)
     is_safety_checklist_complete: bool = Field(default=False)
     checkpoints_cleared: int = Field(default=0)
@@ -46,9 +47,10 @@ class TripCreate(SQLModel):
 
 
 class TripCompletePayload(SQLModel):
-    """Payload for completing a trip — actual distance + fuel consumed required."""
+    """Payload for completing a trip — actual distance + fuel consumed + charge amount required."""
     actual_distance_km: float
     fuel_consumed_liters: float
+    charge_amount: Optional[float] = 0.0  # Amount charged to customer (₹)
 
 
 class TripRead(SQLModel):
@@ -62,6 +64,7 @@ class TripRead(SQLModel):
     planned_distance_km: float
     actual_distance_km: Optional[float]
     fuel_consumed_liters: Optional[float]
+    charge_amount: Optional[float]
     status: TripStatus
     is_safety_checklist_complete: bool
     checkpoints_cleared: int

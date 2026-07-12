@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { Fuel, Receipt, Plus, X, Trash2, RefreshCw, TrendingDown, DollarSign, Lock, IndianRupee } from 'lucide-react'
+import { Fuel, Receipt, Plus, X, Trash2, RefreshCw, TrendingDown, DollarSign, Lock, IndianRupee, TrendingUp } from 'lucide-react'
 import api from '../api/client'
 import toast from 'react-hot-toast'
 import useRBAC from '../store/useRBAC'
@@ -184,18 +184,28 @@ export default function FuelExpense() {
   const [showFuelModal, setShowFuelModal] = useState(false)
   const [showExpenseModal, setShowExpenseModal] = useState(false)
   const [deleting, setDeleting] = useState(null)
+  const [totalRevenue, setTotalRevenue] = useState(0)
 
   const loadAll = useCallback(async () => {
     setLoading(true)
     try {
-      const [fuelRes, expRes, vehiclesRes] = await Promise.all([
+      const [fuelRes, expRes, vehiclesRes, tripsRes] = await Promise.all([
         api.get('/fuel/'),
         api.get('/expenses/'),
         api.get('/vehicles/'),
+        api.get('/trips/'),
       ])
       setFuelLogs(fuelRes.data)
       setExpenses(expRes.data)
       setVehicles(vehiclesRes.data)
+      // Compute total revenue from completed trips with charge_amount
+      const completedTrips = tripsRes.data.filter(t => t.status === 'Completed')
+      const rev = completedTrips.reduce((s, t) => {
+        if (t.charge_amount && t.charge_amount > 0) return s + t.charge_amount
+        // Legacy formula fallback
+        return s + ((t.actual_distance_km || 0) * 3.0) + (t.cargo_weight_kg * 0.5)
+      }, 0)
+      setTotalRevenue(rev)
     } catch {
       toast.error('Failed to load fuel & expense data')
     } finally {
@@ -272,12 +282,14 @@ export default function FuelExpense() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         {[
-          { label: 'Total Fuel Cost', value: `₹${totalFuelCost.toLocaleString()}`, sub: `${totalFuelLiters.toFixed(1)} liters`, icon: Fuel, color: 'text-teal-400', bg: 'bg-teal-500/15' },
-          { label: 'Total Expenses', value: `₹${totalExpenses.toLocaleString()}`, sub: `${expenses.length} record${expenses.length !== 1 ? 's' : ''}`, icon: Receipt, color: 'text-purple-400', bg: 'bg-purple-500/15' },
-          { label: 'Total Operational Cost', value: `₹${totalOpCost.toLocaleString()}`, sub: 'Fuel + Expenses', icon: IndianRupee, color: 'text-yellow-400', bg: 'bg-yellow-500/15' },
-          { label: 'Avg Cost/Liter', value: totalFuelLiters > 0 ? `₹${(totalFuelCost / totalFuelLiters).toFixed(2)}` : '—', sub: 'Fleet average', icon: TrendingDown, color: 'text-primary-400', bg: 'bg-primary-600/15' },
+          { label: 'Total Fuel Cost',       value: `₹${totalFuelCost.toLocaleString()}`,  sub: `${totalFuelLiters.toFixed(1)} liters`,                        icon: Fuel,         color: 'text-teal-400',     bg: 'bg-teal-500/15' },
+          { label: 'Total Expenses',         value: `₹${totalExpenses.toLocaleString()}`,  sub: `${expenses.length} record${expenses.length !== 1 ? 's' : ''}`, icon: Receipt,      color: 'text-purple-400',   bg: 'bg-purple-500/15' },
+          { label: 'Total Operational Cost', value: `₹${totalOpCost.toLocaleString()}`,    sub: 'Fuel + Expenses',                                              icon: IndianRupee,  color: 'text-yellow-400',   bg: 'bg-yellow-500/15' },
+          { label: 'Total Trip Revenue',     value: `₹${totalRevenue.toLocaleString(undefined, {maximumFractionDigits:0})}`, sub: 'From completed trips', icon: TrendingUp,   color: 'text-emerald-500',  bg: 'bg-emerald-500/15' },
+          { label: 'Net Revenue (P&L)',       value: `₹${(totalRevenue - totalOpCost).toLocaleString(undefined, {maximumFractionDigits:0})}`, sub: 'Revenue − All Costs', icon: DollarSign, color: totalRevenue - totalOpCost >= 0 ? 'text-emerald-500' : 'text-red-400', bg: totalRevenue - totalOpCost >= 0 ? 'bg-emerald-500/15' : 'bg-red-500/15' },
+          { label: 'Avg Cost/Liter',         value: totalFuelLiters > 0 ? `₹${(totalFuelCost / totalFuelLiters).toFixed(2)}` : '—', sub: 'Fleet average',     icon: TrendingDown, color: 'text-primary-400',  bg: 'bg-primary-600/15' },
         ].map(({ label, value, sub, icon: Icon, color, bg }) => (
           <div key={label} className="card p-4 flex items-center gap-4">
             <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center flex-shrink-0`}>

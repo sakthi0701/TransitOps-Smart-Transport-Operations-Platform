@@ -189,7 +189,13 @@ function CreateTripModal({ onClose, onCreated }) {
 function CompleteModal({ trip, onClose, onDone }) {
   const [actual_distance_km, setDist] = useState(trip.planned_distance_km || '')
   const [fuel_consumed_liters, setFuel] = useState('')
+  const [charge_amount, setCharge] = useState('')
   const [saving, setSaving] = useState(false)
+
+  // Show estimated revenue as a hint
+  const estRevenue = actual_distance_km && trip.cargo_weight_kg
+    ? ((parseFloat(actual_distance_km) * 3.0) + (trip.cargo_weight_kg * 0.5)).toFixed(0)
+    : null
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -198,6 +204,7 @@ function CompleteModal({ trip, onClose, onDone }) {
       await api.post(`/trips/${trip.id}/complete`, {
         actual_distance_km: parseFloat(actual_distance_km),
         fuel_consumed_liters: parseFloat(fuel_consumed_liters),
+        charge_amount: charge_amount ? parseFloat(charge_amount) : 0,
       })
       toast.success('Trip completed! Statuses updated.')
       onDone()
@@ -213,7 +220,9 @@ function CompleteModal({ trip, onClose, onDone }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="card w-full max-w-md p-6 animate-fade-in">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-white">Complete Trip #{trip.id}</h2>
+          <h2 className="text-lg font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+            Complete Trip #{trip.id}
+          </h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -225,9 +234,32 @@ function CompleteModal({ trip, onClose, onDone }) {
             <label className="form-label">Fuel Consumed (liters) *</label>
             <input className="input" type="number" min="0" step="0.1" required value={fuel_consumed_liters} onChange={e => setFuel(e.target.value)} placeholder="e.g. 45.5" />
           </div>
+
+          {/* ── Charge Amount — Real Revenue ── */}
+          <div>
+            <label className="form-label flex items-center gap-1.5">
+              Charge Amount (₹)
+              <span className="text-emerald-500 font-normal normal-case tracking-normal ml-1">← Revenue</span>
+            </label>
+            <input
+              className="input"
+              type="number"
+              min="0"
+              step="0.01"
+              value={charge_amount}
+              onChange={e => setCharge(e.target.value)}
+              placeholder={estRevenue ? `e.g. ${estRevenue} (formula estimate)` : 'Amount billed to client'}
+            />
+            {estRevenue && (
+              <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
+                💡 Formula estimate: ₹{parseInt(estRevenue).toLocaleString()} — enter actual amount charged to client for accurate P&L
+              </p>
+            )}
+          </div>
+
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} className="btn-ghost flex-1">Cancel</button>
-            <button type="submit" disabled={saving} className="btn-primary flex-1 bg-emerald-600 hover:bg-emerald-500">
+            <button type="submit" disabled={saving} className="btn-primary flex-1" style={{ backgroundColor: '#16a34a' }}>
               {saving ? 'Completing...' : '✓ Complete Trip'}
             </button>
           </div>

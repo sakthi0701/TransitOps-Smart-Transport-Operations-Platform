@@ -375,6 +375,7 @@ def complete_trip(
     # Record actuals
     trip.actual_distance_km = payload.actual_distance_km
     trip.fuel_consumed_liters = payload.fuel_consumed_liters
+    trip.charge_amount = payload.charge_amount or 0.0  # Real revenue charged to customer
     trip.status = TripStatus.COMPLETED
 
     # Rule 9 — Update odometer, km run
